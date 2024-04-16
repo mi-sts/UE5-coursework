@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> 
+
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveInputAction;
@@ -34,6 +37,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> LookInputAction;
 
+	/** Input action assigned to player shooting. */
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> ShootInputAction;
+	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
+	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 };
