@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "LestaStart/Game/Weapon/Weapon.h"
 #include "LestaCharacter.generated.h"
 
 class UCameraComponent;
@@ -27,7 +28,7 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USceneComponent> 
+	TObjectPtr<AWeapon> Weapon; 
 
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

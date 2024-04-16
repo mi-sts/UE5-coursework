@@ -22,7 +22,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="QWE")
 	TObjectPtr<UWeaponProjectileFactory> ProjectileFactory;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UWeaponClipSystem> WeaponClipSystem;
