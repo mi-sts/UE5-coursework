@@ -3,6 +3,7 @@
 #include "LestaCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "LestaStart/Game/Weapon/LaserWeapon.h"
 
 ALestaCharacter::ALestaCharacter()
 {
@@ -11,6 +12,8 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
 	CameraComponent->bUsePawnControlRotation = true; // Camera rotation is synchronized with Player Controller rotation
 	CameraComponent->SetupAttachment(GetMesh());
+
+	WeaponSocketTransform = GetMesh()->GetSocketTransform(WeaponSocketName, RTS_World);
 }
 
 void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -31,6 +34,15 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		UE_LOG(LogInput, Error, TEXT("Unexpected input component class: %s"), *GetFullNameSafe(PlayerInputComponent))
 	}
 }
+
+void ALestaCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	Weapon = GetWorld()->SpawnActor<ALaserWeapon>();
+	AttachWeapon(Weapon);
+}
+
+
 
 void ALestaCharacter::OnMoveInput(const FInputActionInstance& InputActionInstance)
 {
@@ -55,6 +67,28 @@ void ALestaCharacter::OnLookInput(const FInputActionInstance& InputActionInstanc
 
 void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstance)
 {
-	const bool Pressed = InputActionInstance.GetValue().Get<bool>();
-	UE_LOG(LogInput, Warning, TEXT("Shoot Triggered: %d"), Pressed);
+	const bool IsPressed = InputActionInstance.GetValue().Get<bool>();
+	if (IsPressed)
+	{
+		Weapon->PullTrigger();
+	}
+	else
+	{
+		Weapon->ReleaseTrigger();
+	}
+}
+
+void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
+{
+	if (AttachingWeapon == nullptr || !IsValid(AttachingWeapon))
+	{
+		UE_LOG(LogInput, Error, TEXT("The attaching weapon is not valid!"));
+		return;
+	}
+
+	AttachingWeapon->AttachToComponent(
+		GetMesh(),
+		FAttachmentTransformRules::SnapToTargetIncludingScale,
+		WeaponSocketName
+	);
 }

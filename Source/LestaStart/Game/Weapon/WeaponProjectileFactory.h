@@ -13,10 +13,8 @@ class LESTASTART_API UWeaponProjectileFactory : public UActorComponent
 
 public:
 	UWeaponProjectileFactory();
-	virtual void StartCreation()
-	PURE_VIRTUAL(UWeaponProjectileFactory::StartCreation);
-	virtual void StopCreation()
-	PURE_VIRTUAL(UWeaponProjectileFactory::StopCreation);
+	virtual void CreateProjectile()
+	PURE_VIRTUAL(UWeaponProjectileFactory::CreateProjectile);
 
 protected:
 	virtual void BeginPlay() override;

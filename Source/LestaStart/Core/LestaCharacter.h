@@ -41,8 +41,17 @@ protected:
 	/** Input action assigned to player shooting. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> ShootInputAction;
+
+	UPROPERTY(VisibleAnywhere)
+	FName WeaponSocketName = FName("weapon_socket");
+
+	FTransform WeaponSocketTransform;
+
+	virtual void BeginPlay() override;
 	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
+
+	void AttachWeapon(AWeapon* AttachingWeapon);
 };

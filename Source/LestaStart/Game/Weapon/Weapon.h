@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponClipSystem.h"
+#include "WeaponAmmoSystem.h"
 #include "WeaponProjectileFactory.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class LESTASTART_API AWeapon : public AActor
 {
 	GENERATED_BODY()
@@ -22,11 +22,21 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	UPROPERTY(EditDefaultsOnly, Category="QWE")
+	
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UWeaponProjectileFactory> ProjectileFactory;
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UWeaponClipSystem> WeaponClipSystem;
-	
+	TObjectPtr<UWeaponAmmoSystem> WeaponAmmoSystem;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USkeletalMeshComponent> WeaponMeshComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsTriggered;
+
+	void InitializeMesh(const FString& MeshReferenceName);
+	void TakeShot();
+
+	FTimerHandle ShotTimerHandle;
 public:
 	virtual void Tick(float DeltaTime) override;
 };
