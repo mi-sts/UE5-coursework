@@ -1,12 +1,32 @@
 ﻿
 #include "WeaponProjectileFactory.h"
 
-#include "Camera/CameraComponent.h"
-
 
 UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGetter(nullptr),
-                                                      PlayerCameraTransformGetter(nullptr)
+	PlayerCameraTransformGetter(nullptr),
+	IsCreationEnabled(false)
 {
+}
+
+void UWeaponProjectileFactory::CreateProjectile(float Damage)
+{
+	if (!IsCreationEnabled)
+	{
+		UE_LOG(LogInput, Error, TEXT("Cannot create a projectile, creation is disabled!"));
+		return;
+	}
+
+	OnProjectileCreation(Damage);
+}
+
+void UWeaponProjectileFactory::EnableCreation()
+{
+	IsCreationEnabled = true;
+}
+
+void UWeaponProjectileFactory::DisableCreation()
+{
+	IsCreationEnabled = false;
 }
 
 void UWeaponProjectileFactory::Initialize(

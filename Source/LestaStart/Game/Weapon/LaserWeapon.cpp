@@ -13,9 +13,9 @@ ALaserWeapon::ALaserWeapon()
 	InitializeMesh(FString("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
 }
 
-void ALaserWeapon::Initialize(UCameraComponent* CameraComponent)
+void ALaserWeapon::Activate(UCameraComponent* CameraComponent)
 {
-	Super::Initialize(CameraComponent);
+	Super::Activate(CameraComponent);
 	ProjectileFactory->Initialize(
 		[&]() { return GetMuzzleTransform(); },
 		[&]() { return GetCameraTransform(); }

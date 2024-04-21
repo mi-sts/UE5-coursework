@@ -17,9 +17,10 @@ class LESTASTART_API AWeapon : public AActor
 public:
 	AWeapon();
 	
-	void PullTrigger();
-	void ReleaseTrigger();
-	virtual void Initialize(UCameraComponent* CameraComponent);
+	virtual void PullTrigger();
+	virtual void ReleaseTrigger();
+	virtual void Activate(UCameraComponent* CameraComponent);
+	virtual void Deactivate();
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,14 +35,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool IsTriggered;
 
-	void TakeShot();
+	void TakeShot(float Damage);
 	void InitializeMesh(const FString& MeshReferenceName);
 	FTransform GetMuzzleTransform();
 	FTransform GetCameraTransform();
 
-	FTimerHandle ShotTimerHandle;
 	UCameraComponent* PlayerCameraComponent; 
 	USkeletalMeshSocket* MuzzleSocket;
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 };

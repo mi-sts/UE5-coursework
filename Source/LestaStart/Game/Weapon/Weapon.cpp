@@ -14,24 +14,27 @@ AWeapon::AWeapon(): IsTriggered(false)
 void AWeapon::PullTrigger()
 {
 	IsTriggered = true;
-	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AWeapon::TakeShot, 1.0f, true);
 }
 
 void AWeapon::ReleaseTrigger()
 {
 	IsTriggered = false;
-	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
 }
 
-void AWeapon::Initialize(UCameraComponent* CameraComponent)
+void AWeapon::Activate(UCameraComponent* CameraComponent)
 {
 	PlayerCameraComponent = CameraComponent;
+	ProjectileFactory->EnableCreation();
+}
+
+void AWeapon::Deactivate()
+{
+	ProjectileFactory->DisableCreation();
 }
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AWeapon::InitializeMesh(const FString& MeshReferenceName)
@@ -69,9 +72,10 @@ FTransform AWeapon::GetCameraTransform()
 	return PlayerCameraComponent->GetComponentTransform();
 }
 
-void AWeapon::TakeShot()
+void AWeapon::TakeShot(float Damage)
 {
-	ProjectileFactory->CreateProjectile();
+	ProjectileFactory->CreateProjectile(Damage);
+	UE_LOG(LogInput, Warning, TEXT("Shot"));
 }
 
 void AWeapon::Tick(float DeltaTime)

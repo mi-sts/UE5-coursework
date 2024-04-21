@@ -3,22 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DiscreteWeapon.h"
 #include "Weapon.h"
-#include "LaserWeapon.generated.h"
+#include "ContinuousWeapon.generated.h"
 
 UCLASS()
-class LESTASTART_API ALaserWeapon : public ADiscreteWeapon
+class LESTASTART_API AContinuousWeapon : public AWeapon
 {
 	GENERATED_BODY()
 
 public:
-	ALaserWeapon();
-
-	virtual void Activate(UCameraComponent* CameraComponent) override;
+	AContinuousWeapon();
 
 protected:
 	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere)
+	float DamagePerSecond;
 
 public:
 	virtual void Tick(float DeltaTime) override;

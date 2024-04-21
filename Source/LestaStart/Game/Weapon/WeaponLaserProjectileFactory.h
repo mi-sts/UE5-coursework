@@ -17,11 +17,13 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 						   FActorComponentTickFunction* ThisTickFunction) override;
-	
-	virtual void CreateProjectile() override;
+	virtual void EnableCreation() override;
+	virtual void DisableCreation() override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void OnProjectileCreation(float Damage) override;
 
 	UPROPERTY(EditAnywhere)
 	float LaserHitDistance = 1000.0f;

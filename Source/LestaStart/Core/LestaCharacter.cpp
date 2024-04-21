@@ -37,8 +37,9 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Weapon = GetWorld()->SpawnActor<ALaserWeapon>();
-	AttachWeapon(Weapon);
+	FirstWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
+	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
+	AttachWeapon(FirstWeapon);
 }
 
 void ALestaCharacter::OnMoveInput(const FInputActionInstance& InputActionInstance)
@@ -64,29 +65,36 @@ void ALestaCharacter::OnLookInput(const FInputActionInstance& InputActionInstanc
 
 void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstance)
 {
+	if (!IsValid(AttachedWeapon))
+		return;
+	
 	const bool IsPressed = InputActionInstance.GetValue().Get<bool>();
 	if (IsPressed)
 	{
-		Weapon->PullTrigger();
+		AttachedWeapon->PullTrigger();
 	}
 	else
 	{
-		Weapon->ReleaseTrigger();
+		AttachedWeapon->ReleaseTrigger();
 	}
 }
 
 void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
 {
-	if (AttachingWeapon == nullptr || !IsValid(AttachingWeapon))
+	if (!IsValid(AttachingWeapon))
 	{
 		UE_LOG(LogInput, Error, TEXT("The attaching weapon is not valid!"));
 		return;
 	}
 
+	if (IsValid(AttachedWeapon))
+		AttachedWeapon->Deactivate();
+	
+	AttachedWeapon = AttachingWeapon;
 	AttachingWeapon->AttachToComponent(
 		GetMesh(),
 		FAttachmentTransformRules::SnapToTargetIncludingScale,
 		WeaponSocketName
 	);
-	AttachingWeapon->Initialize(CameraComponent);
+	AttachedWeapon->Activate(CameraComponent);
 }

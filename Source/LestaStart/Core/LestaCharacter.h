@@ -28,8 +28,12 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AWeapon> Weapon; 
-
+	TObjectPtr<AWeapon> AttachedWeapon;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AWeapon> FirstWeapon; 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AWeapon> SecondWeapon; 
+	
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveInputAction;
