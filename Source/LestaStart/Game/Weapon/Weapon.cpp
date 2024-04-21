@@ -1,6 +1,8 @@
 ﻿
 #include "Weapon.h"
 
+#include "Engine/SkeletalMeshSocket.h"
+
 
 AWeapon::AWeapon(): IsTriggered(false)
 {
@@ -12,15 +14,18 @@ AWeapon::AWeapon(): IsTriggered(false)
 void AWeapon::PullTrigger()
 {
 	IsTriggered = true;
-	UE_LOG(LogInput, Warning, TEXT("Trigger pulled"));
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AWeapon::TakeShot, 1.0f, true);
 }
 
 void AWeapon::ReleaseTrigger()
 {
 	IsTriggered = false;
-	UE_LOG(LogInput, Warning, TEXT("Trigger released"));
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+}
+
+void AWeapon::Initialize(UCameraComponent* CameraComponent)
+{
+	PlayerCameraComponent = CameraComponent;
 }
 
 void AWeapon::BeginPlay()
@@ -31,18 +36,42 @@ void AWeapon::BeginPlay()
 
 void AWeapon::InitializeMesh(const FString& MeshReferenceName)
 {
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMesh(*MeshReferenceName);
-	if (WeaponMesh.Succeeded())
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshFinder(*MeshReferenceName);
+	if (WeaponMeshFinder.Succeeded())
 	{
-		WeaponMeshComponent->SetSkeletalMesh(WeaponMesh.Object);
+		WeaponMeshComponent->SetSkeletalMesh(WeaponMeshFinder.Object);
 		WeaponMeshComponent->SetRelativeLocation(FVector(0.0f));
 		WeaponMeshComponent->SetWorldScale3D(FVector(1.0f));
+		
+		MuzzleSocket = WeaponMeshFinder.Object->FindSocket(TEXT("MuzzleSocket"));
 	}
+}
+
+FTransform AWeapon::GetMuzzleTransform()
+{
+	if (!IsValid(MuzzleSocket) || !IsValid((WeaponMeshComponent)))
+	{
+		UE_LOG(LogInput, Error, TEXT("Cannot get the weapon muzzle transform!"));
+		return FTransform();
+	}
+	
+	return MuzzleSocket->GetSocketTransform(WeaponMeshComponent);
+}
+
+FTransform AWeapon::GetCameraTransform()
+{
+	if (!IsValid(PlayerCameraComponent))
+	{
+		UE_LOG(LogInput, Error, TEXT("Cannot get the player camera transform!"));
+		return FTransform();
+	}
+	
+	return PlayerCameraComponent->GetComponentTransform();
 }
 
 void AWeapon::TakeShot()
 {
-	UE_LOG(LogInput, Warning, TEXT("Shot!"));
+	ProjectileFactory->CreateProjectile();
 }
 
 void AWeapon::Tick(float DeltaTime)

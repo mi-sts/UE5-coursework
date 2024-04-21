@@ -14,6 +14,8 @@ class LESTASTART_API ALaserWeapon : public AWeapon
 public:
 	ALaserWeapon();
 
+	virtual void Initialize(UCameraComponent* CameraComponent) override;
+
 protected:
 	virtual void BeginPlay() override;
 

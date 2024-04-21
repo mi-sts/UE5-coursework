@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "WeaponAmmoSystem.h"
 #include "WeaponProjectileFactory.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
@@ -17,8 +18,8 @@ public:
 	AWeapon();
 	
 	void PullTrigger();
-	
 	void ReleaseTrigger();
+	virtual void Initialize(UCameraComponent* CameraComponent);
 
 protected:
 	virtual void BeginPlay() override;
@@ -33,10 +34,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool IsTriggered;
 
-	void InitializeMesh(const FString& MeshReferenceName);
 	void TakeShot();
+	void InitializeMesh(const FString& MeshReferenceName);
+	FTransform GetMuzzleTransform();
+	FTransform GetCameraTransform();
 
 	FTimerHandle ShotTimerHandle;
+	UCameraComponent* PlayerCameraComponent; 
+	USkeletalMeshSocket* MuzzleSocket;
 public:
 	virtual void Tick(float DeltaTime) override;
 };

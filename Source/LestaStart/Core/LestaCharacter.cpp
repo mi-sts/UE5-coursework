@@ -34,15 +34,12 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		UE_LOG(LogInput, Error, TEXT("Unexpected input component class: %s"), *GetFullNameSafe(PlayerInputComponent))
 	}
 }
-
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Weapon = GetWorld()->SpawnActor<ALaserWeapon>();
 	AttachWeapon(Weapon);
 }
-
-
 
 void ALestaCharacter::OnMoveInput(const FInputActionInstance& InputActionInstance)
 {
@@ -91,4 +88,5 @@ void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
 		FAttachmentTransformRules::SnapToTargetIncludingScale,
 		WeaponSocketName
 	);
+	AttachingWeapon->Initialize(CameraComponent);
 }

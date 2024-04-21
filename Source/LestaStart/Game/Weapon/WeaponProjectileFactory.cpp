@@ -1,9 +1,21 @@
 ﻿
 #include "WeaponProjectileFactory.h"
 
+#include "Camera/CameraComponent.h"
 
-UWeaponProjectileFactory::UWeaponProjectileFactory()
+
+UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGetter(nullptr),
+                                                      PlayerCameraTransformGetter(nullptr)
 {
+}
+
+void UWeaponProjectileFactory::Initialize(
+	TFunction<FTransform()> MuzzleTransformGetter,
+	TFunction<FTransform()> CameraTransformGetter
+)
+{
+	WeaponMuzzleTransformGetter = MuzzleTransformGetter;
+	PlayerCameraTransformGetter = CameraTransformGetter;
 }
 
 void UWeaponProjectileFactory::BeginPlay()
