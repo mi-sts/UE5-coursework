@@ -14,18 +14,21 @@ class LESTASTART_API UHealthComponent : public UActorComponent
 
 public:
 	UHealthComponent();
-
+	
 	DECLARE_EVENT_OneParam(UHealthComponent, FHealthChangedEvent, float);
 	FHealthChangedEvent& OnHealthChanged() { return HealthChangedEvent; } 
-	
+
+	UFUNCTION(BlueprintCallable)
 	float GetMaxHealth();
+	UFUNCTION(BlueprintCallable)
 	float GetHealth();
 
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
 	bool SetHealth(float Value);
-	
+
 	FHealthChangedEvent HealthChangedEvent;
 	
 	UFUNCTION()

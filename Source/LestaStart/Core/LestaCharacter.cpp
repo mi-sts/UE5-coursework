@@ -37,12 +37,26 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		UE_LOG(LogInput, Error, TEXT("Unexpected input component class: %s"), *GetFullNameSafe(PlayerInputComponent))
 	}
 }
+
+float ALestaCharacter::GetHealth()
+{
+	if (!IsValid(HealthComponent))
+	{
+		UE_LOG(LogInput, Error, TEXT("The character health component is not valid!"));
+		return 0.0f;
+	}
+
+	return HealthComponent->GetHealth();
+}
+
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	FirstWeapon = GetWorld()->SpawnActor<ASphereWeapon>();
 	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
 	AttachWeapon(FirstWeapon);
+
+	OnHealthChanged(0.0f);
 
 	AddBindings();
 }
@@ -101,7 +115,16 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 
 void ALestaCharacter::OnHealthChanged(float CurrentHealth)
 {
-	UE_LOG(LogInput, Log, TEXT("Health: %f"), CurrentHealth);
+	if (CurrentHealth <= 0.0f)
+	{
+		OnDead();
+	}
+}
+
+void ALestaCharacter::OnDead()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	GetController()->GetPawn()->DisableInput(nullptr);
 }
 
 void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)

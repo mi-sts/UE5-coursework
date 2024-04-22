@@ -24,10 +24,13 @@ public:
 	ALestaCharacter();
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	float GetHealth();
+
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> CameraComponent;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UHealthComponent> HealthComponent;
 
 	UPROPERTY(VisibleAnywhere)
@@ -62,6 +65,7 @@ protected:
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 
 	virtual void OnHealthChanged(float CurrentHealth);
+	virtual void OnDead();
 	
 	void AttachWeapon(AWeapon* AttachingWeapon);
 	

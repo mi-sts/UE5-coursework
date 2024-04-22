@@ -14,9 +14,7 @@ void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 		UE_LOG(LogInput, Error, TEXT("Unable to create a laser projectile!"));
 		return;
 	}
-
-	UE_LOG(LogInput, Log, TEXT("Created"));
-
+	
 	FTransform MuzzleTransform = WeaponMuzzleTransformGetter();
 	FTransform CameraTransform = PlayerCameraTransformGetter();
 	FVector LaserStartPoint = MuzzleTransform.GetLocation();
