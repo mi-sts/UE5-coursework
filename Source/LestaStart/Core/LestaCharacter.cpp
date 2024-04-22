@@ -14,6 +14,8 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent->bUsePawnControlRotation = true; // Camera rotation is synchronized with Player Controller rotation
 	CameraComponent->SetupAttachment(GetMesh());
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
 	WeaponSocketTransform = GetMesh()->GetSocketTransform(WeaponSocketName, RTS_World);
 }
 
@@ -41,6 +43,23 @@ void ALestaCharacter::BeginPlay()
 	FirstWeapon = GetWorld()->SpawnActor<ASphereWeapon>();
 	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
 	AttachWeapon(FirstWeapon);
+
+	AddBindings();
+}
+
+void ALestaCharacter::AddBindings()
+{
+	HealthComponent->OnHealthChanged().AddUObject(this, &ALestaCharacter::OnHealthChanged);
+}
+
+void ALestaCharacter::RemoveBindings()
+{
+	HealthComponent->OnHealthChanged().RemoveAll(this);
+}
+
+void ALestaCharacter::Destroyed()
+{
+	RemoveBindings();
 }
 
 void ALestaCharacter::OnMoveInput(const FInputActionInstance& InputActionInstance)
@@ -78,6 +97,11 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 	{
 		AttachedWeapon->ReleaseTrigger();
 	}
+}
+
+void ALestaCharacter::OnHealthChanged(float CurrentHealth)
+{
+	UE_LOG(LogInput, Log, TEXT("Health: %f"), CurrentHealth);
 }
 
 void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)

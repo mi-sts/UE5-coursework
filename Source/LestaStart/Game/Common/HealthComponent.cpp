@@ -39,7 +39,7 @@ void UHealthComponent::OnTakeDamage(AActor* DamagedActor, float Damage, const UD
 {
 	if (DamageCauser == DamagedActor)
 		return;
-
+	
 	float DamageTaken = FGenericPlatformMath::Min(Health, Damage);
 	SetHealth(Health - DamageTaken);
 }

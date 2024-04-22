@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/Weapon.h"
 #include "LestaCharacter.generated.h"
 
@@ -26,6 +27,8 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComponent;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<AWeapon> AttachedWeapon;
@@ -52,10 +55,18 @@ protected:
 	FTransform WeaponSocketTransform;
 
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
 
+	virtual void OnHealthChanged(float CurrentHealth);
+	
 	void AttachWeapon(AWeapon* AttachingWeapon);
+	
+private:
+	void AddBindings();
+	void RemoveBindings();
+	
 };

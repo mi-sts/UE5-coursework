@@ -28,9 +28,6 @@ protected:
 	float DamageRadius;
 	UPROPERTY(VisibleAnywhere)
 	float CurrentChargeValue;
-	
-	FTimerHandle ShotTimerHandle;
-	FTimerDelegate ShotFuncDelegate;
 
 public:
 	virtual void Tick(float DeltaTime) override;
