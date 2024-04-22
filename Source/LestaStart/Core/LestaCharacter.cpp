@@ -4,6 +4,7 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "LestaStart/Game/Weapon/LaserWeapon.h"
+#include "LestaStart/Game/Weapon/SphereWeapon.h"
 
 ALestaCharacter::ALestaCharacter()
 {
@@ -37,7 +38,7 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	FirstWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
+	FirstWeapon = GetWorld()->SpawnActor<ASphereWeapon>();
 	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
 	AttachWeapon(FirstWeapon);
 }

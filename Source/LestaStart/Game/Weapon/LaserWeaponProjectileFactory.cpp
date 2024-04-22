@@ -1,15 +1,12 @@
 ﻿
-#include "WeaponLaserProjectileFactory.h"
-
-#include "Engine/SkeletalMeshSocket.h"
+#include "LaserWeaponProjectileFactory.h"
 
 
-UWeaponLaserProjectileFactory::UWeaponLaserProjectileFactory()
+ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
 {
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UWeaponLaserProjectileFactory::OnProjectileCreation(float Damage)
+void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 {
 	if (PlayerCameraTransformGetter == nullptr ||
 		WeaponMuzzleTransformGetter == nullptr)
@@ -31,25 +28,3 @@ void UWeaponLaserProjectileFactory::OnProjectileCreation(float Damage)
 	}
 	DrawDebugLine(GetWorld(), LaserStartPoint, LaserEndPoint, FColor::Purple);
 }
-
-void UWeaponLaserProjectileFactory::EnableCreation()
-{
-	Super::EnableCreation();
-}
-
-void UWeaponLaserProjectileFactory::DisableCreation()
-{
-	Super::DisableCreation();
-}
-
-void UWeaponLaserProjectileFactory::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void UWeaponLaserProjectileFactory::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                  FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-

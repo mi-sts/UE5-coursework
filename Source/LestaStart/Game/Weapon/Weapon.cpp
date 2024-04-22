@@ -24,6 +24,10 @@ void AWeapon::ReleaseTrigger()
 void AWeapon::Activate(UCameraComponent* CameraComponent)
 {
 	PlayerCameraComponent = CameraComponent;
+	ProjectileFactory->Initialize(
+	[&]() { return GetMuzzleTransform(); },
+	[&]() { return GetCameraTransform(); }
+	);
 	ProjectileFactory->EnableCreation();
 }
 

@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Weapon.h"
-#include "DiscreteWeapon.generated.h"
+#include "SphereWeapon.generated.h"
 
 UCLASS()
-class LESTASTART_API ADiscreteWeapon : public AWeapon
+class LESTASTART_API ASphereWeapon : public AWeapon
 {
 	GENERATED_BODY()
 
 public:
-	ADiscreteWeapon();
+	ASphereWeapon();
 
 	virtual void PullTrigger() override;
 	virtual void ReleaseTrigger() override;
@@ -21,9 +21,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	float ShotsDelay;
+	float MaxChargeValue;
 	UPROPERTY(EditAnywhere)
-	float ShotDamage;
+	float ChargePerSecondIncrease;
+	UPROPERTY(EditAnywhere)
+	float DamageRadius;
+	UPROPERTY(VisibleAnywhere)
+	float CurrentChargeValue;
 	
 	FTimerHandle ShotTimerHandle;
 	FTimerDelegate ShotFuncDelegate;
