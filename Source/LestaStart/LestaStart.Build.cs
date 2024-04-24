@@ -18,8 +18,8 @@ public class LestaStart : ModuleRules
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
-		{
-			// add private module dependencies here if required
-		});
+		{ 
+			"AIModule"	
+        });
 	}
 }

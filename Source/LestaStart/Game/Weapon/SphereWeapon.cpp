@@ -43,7 +43,10 @@ void ASphereWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (IsTriggered)
 	{
-		CurrentChargeValue = FGenericPlatformMath::Min(CurrentChargeValue + DeltaTime, MaxChargeValue);
+		CurrentChargeValue = FGenericPlatformMath::Min(
+			CurrentChargeValue + ChargePerSecondIncrease * DeltaTime,
+			MaxChargeValue
+		);
 	}
 }
 

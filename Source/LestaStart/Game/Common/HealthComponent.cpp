@@ -1,6 +1,8 @@
 ﻿
 #include "HealthComponent.h"
 
+#include "LestaStart/Game/Obstacle.h"
+
 
 UHealthComponent::UHealthComponent(): MaxHealth(100.0f), Health(MaxHealth)
 {
@@ -37,6 +39,9 @@ bool UHealthComponent::SetHealth(float Value)
 void UHealthComponent::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                     AController* InstigatedBy, AActor* DamageCauser)
 {
+	if (GetOwner()->GetClass()->IsChildOf<AObstacle>())
+		UE_LOG(LogInput, Log, TEXT("EWQ1"));
+	
 	if (DamageCauser == DamagedActor)
 		return;
 	

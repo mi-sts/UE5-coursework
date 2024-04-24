@@ -55,9 +55,7 @@ void ALestaCharacter::BeginPlay()
 	FirstWeapon = GetWorld()->SpawnActor<ASphereWeapon>();
 	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
 	AttachWeapon(FirstWeapon);
-
-	OnHealthChanged(0.0f);
-
+	
 	AddBindings();
 }
 

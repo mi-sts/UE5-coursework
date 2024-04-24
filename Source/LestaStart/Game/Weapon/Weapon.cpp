@@ -79,7 +79,6 @@ FTransform AWeapon::GetCameraTransform()
 void AWeapon::TakeShot(float Damage)
 {
 	ProjectileFactory->CreateProjectile(Damage);
-	UE_LOG(LogInput, Warning, TEXT("Shot"));
 }
 
 void AWeapon::Tick(float DeltaTime)

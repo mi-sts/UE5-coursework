@@ -1,5 +1,6 @@
 ﻿
 #include "LaserWeaponProjectileFactory.h"
+#include "Engine/DamageEvents.h"
 
 
 ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
@@ -23,6 +24,12 @@ void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 	if (GetWorld()->LineTraceSingleByChannel(LaserHitResult, LaserStartPoint, LaserEndPoint, ECC_Visibility))
 	{
 		LaserEndPoint = LaserHitResult.Location;
+		AActor* HitActor = LaserHitResult.GetActor();
+		if (IsValid(HitActor))
+		{
+			FDamageEvent DamageEvent;
+			HitActor->TakeDamage(Damage, DamageEvent, nullptr, GetOwner());
+		}
 	}
 	DrawDebugLine(GetWorld(), LaserStartPoint, LaserEndPoint, FColor::Purple);
 }
