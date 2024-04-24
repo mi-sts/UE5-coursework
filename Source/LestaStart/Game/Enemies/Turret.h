@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/PoseableMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "Turret.generated.h"
 
@@ -33,10 +34,13 @@ protected:
 	
 	FRotator CurrentRotation;
 	FRotator TargetRotation;
+	
+	UPoseableMeshComponent* TurretMeshComponent;
 
 private:
 	void UpdateRotation(float DeltaTime);
 	void CreateProjectile(float DeltaTime);
+	void InitializeMesh();
 	
 public:
 	virtual void Tick(float DeltaTime) override;
