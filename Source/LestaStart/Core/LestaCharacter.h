@@ -52,6 +52,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> ShootInputAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> FirstWeaponInputAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> SecondWeaponInputAction;
+	
 	UPROPERTY(VisibleAnywhere)
 	FName WeaponSocketName = FName("weapon_socket");
 
@@ -63,10 +69,13 @@ protected:
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
+	virtual void OnFirstWeaponInput(const FInputActionInstance& InputActionInstance);
+	virtual void OnSecondWeaponInput(const FInputActionInstance& InputActionInstance);
 
 	virtual void OnHealthChanged(float CurrentHealth);
 	virtual void OnDead();
-	
+
+	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
 	void AttachWeapon(AWeapon* AttachingWeapon);
 	
 private:

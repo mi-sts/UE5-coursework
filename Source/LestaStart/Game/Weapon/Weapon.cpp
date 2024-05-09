@@ -28,12 +28,23 @@ void AWeapon::Activate(UCameraComponent* CameraComponent)
 	[&]() { return GetMuzzleTransform(); },
 	[&]() { return GetCameraTransform(); }
 	);
+	SetVisible(true);
 	ProjectileFactory->EnableCreation();
 }
 
 void AWeapon::Deactivate()
 {
 	ProjectileFactory->DisableCreation();
+	SetVisible(false);
+}
+
+void AWeapon::SetVisible(bool Visible)
+{
+	if (Visible == IsVisible)
+		return;
+
+	WeaponMeshComponent->SetVisibility(Visible);
+	IsVisible = Visible;
 }
 
 void AWeapon::BeginPlay()

@@ -29,6 +29,8 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EIC->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnMoveInput);
 		EIC->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnLookInput);
 		EIC->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnShootInput);
+		EIC->BindAction(FirstWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnFirstWeaponInput);
+		EIC->BindAction(SecondWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnSecondWeaponInput);
 	}
 	else
 	{
@@ -52,8 +54,8 @@ float ALestaCharacter::GetHealth()
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	FirstWeapon = GetWorld()->SpawnActor<ASphereWeapon>();
-	SecondWeapon = GetWorld()->SpawnActor<ALaserWeapon>();
+	FirstWeapon = SpawnWeapon(ASphereWeapon::StaticClass());
+	SecondWeapon = SpawnWeapon(ALaserWeapon::StaticClass());
 	AttachWeapon(SecondWeapon);
 	
 	AddBindings();
@@ -111,6 +113,24 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 	}
 }
 
+void ALestaCharacter::OnFirstWeaponInput(const FInputActionInstance& InputActionInstance)
+{
+	const bool IsPressed = InputActionInstance.GetValue().Get<bool>();
+	if (!IsPressed)
+		return;
+
+	AttachWeapon(FirstWeapon);
+}
+
+void ALestaCharacter::OnSecondWeaponInput(const FInputActionInstance& InputActionInstance)
+{
+	const bool IsPressed = InputActionInstance.GetValue().Get<bool>();
+	if (!IsPressed)
+		return;
+
+	AttachWeapon(SecondWeapon);
+}
+
 void ALestaCharacter::OnHealthChanged(float CurrentHealth)
 {
 	if (CurrentHealth <= 0.0f)
@@ -125,6 +145,21 @@ void ALestaCharacter::OnDead()
 	GetController()->GetPawn()->DisableInput(nullptr);
 }
 
+AWeapon* ALestaCharacter::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass)
+{
+	AWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
+	if (IsValid(SpawnedWeapon))
+	{
+		SpawnedWeapon->AttachToComponent(
+			GetMesh(),
+			FAttachmentTransformRules::SnapToTargetIncludingScale,
+			WeaponSocketName
+		);
+	}
+
+	return SpawnedWeapon;
+}
+
 void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
 {
 	if (!IsValid(AttachingWeapon))
@@ -137,10 +172,6 @@ void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
 		AttachedWeapon->Deactivate();
 	
 	AttachedWeapon = AttachingWeapon;
-	AttachingWeapon->AttachToComponent(
-		GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale,
-		WeaponSocketName
-	);
+
 	AttachedWeapon->Activate(CameraComponent);
 }

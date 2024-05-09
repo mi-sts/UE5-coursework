@@ -21,7 +21,7 @@ public:
 	virtual void ReleaseTrigger();
 	virtual void Activate(UCameraComponent* CameraComponent);
 	virtual void Deactivate();
-
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -34,8 +34,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsTriggered;
-
+	UPROPERTY(VisibleAnywhere)
+	bool IsVisible;
+	
 	void TakeShot(float Damage);
+	void SetVisible(bool Visible);
 	void InitializeMesh(const FString& MeshReferenceName);
 	FTransform GetMuzzleTransform();
 	FTransform GetCameraTransform();
