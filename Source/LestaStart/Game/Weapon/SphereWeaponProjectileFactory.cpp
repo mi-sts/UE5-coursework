@@ -2,6 +2,8 @@
 
 
 #include "SphereWeaponProjectileFactory.h"
+
+#include "Weapon.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -35,17 +37,19 @@ void USphereWeaponProjectileFactory::OnProjectileCreation(float Damage)
 		3.0f
 	);
 	UE_LOG(LogInput, Log, TEXT("QWE"));
+	AActor* WeaponOwner = GetWeaponOwner();
+
 	bool Qw = UGameplayStatics::ApplyRadialDamage(
 		GetWorld(),
 		Damage,
 		CameraLocation,
 		DamageRadius,
 		nullptr,
-		{ GetOwner() },
-		GetOwner(),
+		{ WeaponOwner },
+		WeaponOwner,
 		nullptr,
 		true,
-		ECC_WorldDynamic
+		ECC_Visibility
 	);
 	UE_LOG(LogInput, Log, TEXT("Damaged %d"), Qw);
 }

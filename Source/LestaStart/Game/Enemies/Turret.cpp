@@ -1,38 +1,85 @@
 ﻿
 #include "Turret.h"
 
-#include "Components/PoseableMeshComponent.h"
+#include "TurretAIController.h"
+#include "TurretAnimInstance.h"
+#include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/LaserWeaponProjectileFactory.h"
 
 const FName MuzzleSocketName = FName("MuzzleSocket");
 const FName TurretRotationBoneName = FName("GunMount");
-const FString TurretMeshPath = FString("/Script/Engine.SkeletalMesh'/Game/Turret/Turret.Turret'");
+const FString TurretMeshPath = FString("/Game/Turret/SKM_Turret.SKM_Turret");
+const FName TurretAnimInstanceRotationVariableName = FName("TurretRotation");
 
 
-ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f)
+ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f), IsShooting(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	InitializeMesh();
 
-	CurrentRotation = TurretMeshComponent->GetBoneRotationByName(TurretRotationBoneName, EBoneSpaces::WorldSpace);
-	TargetRotation = CurrentRotation;
-
 	UWeaponProjectileFactory* InitialProjectileFactory =
-	CreateDefaultSubobject<ULaserWeaponProjectileFactory>("ProjectileFactory");
+		CreateDefaultSubobject<ULaserWeaponProjectileFactory>("ProjectileFactory");
 	AssignProjectileFactory(InitialProjectileFactory);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	AIControllerClass = ATurretAIController::StaticClass();
+
+	TurretMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	TurretMeshComponent->SetAnimInstanceClass(TSubclassOf<UTurretAnimInstance>());
 }
 
 void ATurret::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TurretAnimInstance = Cast<UTurretAnimInstance>(TurretMeshComponent->GetAnimInstance());
+	if (IsValid(TurretAnimInstance))
+	{
+		CurrentRotation = TurretAnimInstance->TurretRotation;
+		TargetRotation = CurrentRotation;
+	}
+	
+	AddBindings();
+}
+
+void ATurret::Destroyed()
+{
+	Super::Destroyed();
+	RemoveBindings();
+}
+
+void ATurret::AddBindings()
+{
+	HealthComponent->OnHealthChanged().AddUObject(this, &ATurret::OnHealthChanged);
+}
+
+void ATurret::RemoveBindings()
+{
+	HealthComponent->OnHealthChanged().RemoveAll(this);
+}
+
+void ATurret::OnHealthChanged(float CurrentHealth)
+{
+	UE_LOG(LogInput, Log, TEXT("HealthUPD"));
+	if (CurrentHealth <= 0.0f)
+	{
+		OnDead();
+	}
+}
+
+void ATurret::OnDead()
+{
+	Destroy();
 }
 
 void ATurret::InitializeMesh()
 {
-	TurretMeshComponent = CreateDefaultSubobject<UPoseableMeshComponent>("TurretMeshComponent");
+	TurretMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>("TurretMeshComponent");
 	TurretMeshComponent->SetupAttachment(RootComponent);
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TurretMeshFinder(TEXT("/Game/Turret/Turret.Turret"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TurretMeshFinder(TEXT("/Game/Turret/SKM_Turret.SKM_Turret"));
 	if (TurretMeshFinder.Succeeded())
 	{
 		TurretMeshComponent->SetSkinnedAssetAndUpdate(TurretMeshFinder.Object);
@@ -43,6 +90,7 @@ void ATurret::InitializeMesh()
 
 void ATurret::RotateTo(FRotator Rotation)
 {
+	Rotation.Yaw -= 90.0f;
 	TargetRotation = Rotation;
 }
 
@@ -72,14 +120,21 @@ void ATurret::AssignProjectileFactory(UWeaponProjectileFactory* ProjectileFactor
 	AssignedProjectileFactory->EnableCreation();
 }
 
+void ATurret::StartShooting()
+{
+	IsShooting = true;
+}
+
+void ATurret::StopShooting()
+{
+	IsShooting = false;
+}
+
 void ATurret::UpdateRotation(float DeltaTime)
 {
 	FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
-	FRotator BoneRotation = FRotator(NewRotation);
-	BoneRotation.Roll = 90.0f;
-	BoneRotation.Yaw -= 90.0f;	
-	
-	TurretMeshComponent->SetBoneRotationByName(TurretRotationBoneName, BoneRotation, EBoneSpaces::WorldSpace);
+	if (IsValid(TurretAnimInstance))
+		TurretAnimInstance->TurretRotation = NewRotation;
 	CurrentRotation = NewRotation;
 }
 
@@ -95,5 +150,6 @@ void ATurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateRotation(DeltaTime);
-	CreateProjectile(DeltaTime);
+	if (IsShooting)
+		CreateProjectile(DeltaTime);
 }

@@ -49,12 +49,13 @@ void ATurretAIController::OnSeePawn(APawn* OtherPawn)
 
 	IsFollowing = true;
 	LastSeenPawn = OtherPawn;
+	ControlledTurret->StartShooting();
 	GetWorldTimerManager().ClearTimer(StopFollowingTimerHandle);
 	GetWorldTimerManager().SetTimer(
 		StopFollowingTimerHandle,
 		this,
 		&ATurretAIController::StopFollowing,
-		SensingInterval * 3.0f,
+		SensingInterval * 10.0f,
 		false
 	);
 	FRotator LookAtPawnRotation = CalculateLookAtRotator(OtherPawn);
@@ -64,6 +65,7 @@ void ATurretAIController::OnSeePawn(APawn* OtherPawn)
 void ATurretAIController::StopFollowing()
 {
 	IsFollowing = false;
+	ControlledTurret->StopShooting();
 }
 
 FRotator ATurretAIController::CalculateLookAtRotator(APawn* OtherPawn)

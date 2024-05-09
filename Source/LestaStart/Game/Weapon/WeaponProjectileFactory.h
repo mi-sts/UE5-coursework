@@ -27,6 +27,8 @@ protected:
 	virtual void OnProjectileCreation(float Damage)
 	PURE_VIRTUAL(UWeaponProjectileFactory::CreateProjectile);
 
+	AActor* GetWeaponOwner();
+
 	TFunction<FTransform()> WeaponMuzzleTransformGetter;
 	TFunction<FTransform()> PlayerCameraTransformGetter;
 

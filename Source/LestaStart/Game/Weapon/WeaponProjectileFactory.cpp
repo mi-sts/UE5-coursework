@@ -43,6 +43,14 @@ void UWeaponProjectileFactory::BeginPlay()
 	Super::BeginPlay();
 }
 
+AActor* UWeaponProjectileFactory::GetWeaponOwner()
+{
+	if (IsValid(GetOwner()) && IsValid(GetOwner()->GetAttachParentActor()))
+		return GetOwner()->GetAttachParentActor();
+
+	return nullptr;
+}
+
 void UWeaponProjectileFactory::TickComponent(float DeltaTime, ELevelTick TickType,
                                              FActorComponentTickFunction* ThisTickFunction)
 {

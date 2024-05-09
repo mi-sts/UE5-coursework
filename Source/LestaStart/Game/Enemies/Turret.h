@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/PoseableMeshComponent.h"
+#include "TurretAnimInstance.h"
 #include "GameFramework/Actor.h"
+#include "LestaStart/Game/Common/HealthComponent.h"
 #include "Turret.generated.h"
 
 class UWeaponProjectileFactory;
@@ -21,10 +22,17 @@ public:
 	void RotateTo(FRotator Rotation);
 	UFUNCTION(BlueprintCallable)
 	void AssignProjectileFactory(UWeaponProjectileFactory* ProjectileFactory);
+	UFUNCTION(BlueprintCallable)
+	void StartShooting();
+	UFUNCTION(BlueprintCallable)
+	void StopShooting();
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UHealthComponent> HealthComponent;
 	UPROPERTY(EditAnywhere)
 	float RotationSpeed;
 	UPROPERTY(VisibleAnywhere)
@@ -32,10 +40,18 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float DamagePerSecond;
 	
+	void AddBindings();
+	void RemoveBindings();
+	void OnHealthChanged(float CurrentHealth);
+	void OnDead();
+
+	bool IsShooting;
+	
 	FRotator CurrentRotation;
 	FRotator TargetRotation;
 	
-	UPoseableMeshComponent* TurretMeshComponent;
+	UPROPERTY()
+	UTurretAnimInstance* TurretAnimInstance;
 
 private:
 	void UpdateRotation(float DeltaTime);
@@ -43,5 +59,8 @@ private:
 	void InitializeMesh();
 	
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* TurretMeshComponent;
+	
 	virtual void Tick(float DeltaTime) override;
 };

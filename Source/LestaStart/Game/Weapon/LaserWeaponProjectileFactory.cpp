@@ -28,7 +28,7 @@ void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 		if (IsValid(HitActor))
 		{
 			FDamageEvent DamageEvent;
-			HitActor->TakeDamage(Damage, DamageEvent, nullptr, GetOwner());
+			HitActor->TakeDamage(Damage, DamageEvent, nullptr, GetWeaponOwner());
 		}
 	}
 	DrawDebugLine(GetWorld(), LaserStartPoint, LaserEndPoint, FColor::Purple);
