@@ -49,9 +49,7 @@ void ULaserWeaponProjectileFactory::ClientVisualizeLaserTrace_Implementation()
 	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
 	
 	if (GetLaserTraceHitResult(LaserHitResult))
-	{
-		LaserEndLocation = LaserHitResult.TraceEnd;
-	}
+		LaserEndLocation = LaserHitResult.Location;
 
 	DrawDebugLine(GetWorld(), LaserStartLocation, LaserEndLocation, FColor::Purple);
 }
