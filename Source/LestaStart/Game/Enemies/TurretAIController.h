@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Perception/PawnSensingComponent.h"
 #include "Turret.h"
 #include "TurretAIController.generated.h"
 
@@ -22,23 +21,24 @@ protected:
 	virtual void Destroyed() override;
 
 	void StopFollowing();
+	void UpdateVisibleActors();
 
 	UPROPERTY(EditAnywhere)
+	float DetectingInterval;
+	UPROPERTY(EditAnywhere)
 	float VisibilityDistance;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UPawnSensingComponent> PawnSensingComponent;
 	UPROPERTY(VisibleAnywhere)
 	ATurret* PossessedTurret;
 	
 	UFUNCTION()
-	void OnSeePawn(APawn* OtherPawn);
-
-	FRotator CalculateLookAtRotator(APawn* OtherPawn);
-
+	void OnDetectActor(AActor* OtherActor);
+	
 	ATurret* ControlledTurret;
-	APawn* LastSeenPawn;
+	AActor* LastSeenActor;
 	bool IsFollowing;
 	FTimerHandle StopFollowingTimerHandle;
+	FTimerHandle DetectionTimerHandle;
+	TArray<AActor*> VisibleActors;
 
 public:
 	virtual void Tick(float DeltaTime) override;

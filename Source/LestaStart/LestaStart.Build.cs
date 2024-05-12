@@ -14,6 +14,7 @@ public class LestaStart : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore",
+			"UMG",
 			"EnhancedInput"
 		});
 

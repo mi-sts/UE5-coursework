@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LestaCharacter.h"
 #include "GameFramework/PlayerController.h"
+#include "LestaStart/UI/PlayerUIWidget.h"
 #include "LestaPlayerController.generated.h"
 
 class UInputMappingContext;
@@ -21,10 +23,22 @@ protected:
 	/** Added input mapping context on startup. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputMapping;
-
+	
 	/** Priority of InputMapping. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (ClampMin = 0))
 	int32 InputMappingPriority = 0;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UPlayerUIWidget> PlayerUIWidgetClass;
+	UPROPERTY()
+	TObjectPtr<UPlayerUIWidget> PlayerUIWidget;
+	
+	UPROPERTY()
+	ALestaCharacter* ControlledCharacter;
+	
+	void InitializeLocalPlayerUI();
+	
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void OnPossess(APawn* InPawn) override;
 };

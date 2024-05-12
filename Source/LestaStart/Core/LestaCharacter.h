@@ -7,6 +7,7 @@
 #include "InputAction.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/Weapon.h"
+#include "LestaStart/UI/HealthbarWidgetComponent.h"
 #include "LestaCharacter.generated.h"
 
 class UCameraComponent;
@@ -26,6 +27,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealth();
+	UFUNCTION(BlueprintCallable)
+	float GetMaxHealth();
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -38,7 +41,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<AWeapon> FirstWeapon; 
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AWeapon> SecondWeapon; 
+	TObjectPtr<AWeapon> SecondWeapon;
 	
 	/** Input action assigned to movement. */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -60,7 +63,10 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	FName WeaponSocketName = FName("weapon_socket");
-
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UHealthbarWidgetComponent> SimulatedPlayerHealthbarWidgetComponent;
+	
 	FTransform WeaponSocketTransform;
 
 	virtual void BeginPlay() override;
@@ -81,5 +87,5 @@ protected:
 private:
 	void AddBindings();
 	void RemoveBindings();
-	
+	void InitializeSimulatedPlayerUIWidget();
 };

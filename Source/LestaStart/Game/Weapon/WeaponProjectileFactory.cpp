@@ -45,9 +45,13 @@ void UWeaponProjectileFactory::BeginPlay()
 
 AActor* UWeaponProjectileFactory::GetWeaponOwner()
 {
-	if (IsValid(GetOwner()) && IsValid(GetOwner()->GetAttachParentActor()))
-		return GetOwner()->GetAttachParentActor();
-
+	if (IsValid(GetOwner())) {
+		if (IsValid(GetOwner()->GetAttachParentActor()))
+			return GetOwner()->GetAttachParentActor();
+		
+		return GetOwner();
+	}
+	
 	return nullptr;
 }
 

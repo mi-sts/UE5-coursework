@@ -5,6 +5,7 @@
 #include "TurretAnimInstance.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/LaserWeaponProjectileFactory.h"
+#include "Net/UnrealNetwork.h"
 
 const FName MuzzleSocketName = FName("MuzzleSocket");
 const FName TurretRotationBoneName = FName("GunMount");
@@ -15,6 +16,7 @@ const FName TurretAnimInstanceRotationVariableName = FName("TurretRotation");
 ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f), IsShooting(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	InitializeMesh();
 
@@ -27,8 +29,8 @@ ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f), IsShooting(fa
 	AIControllerClass = ATurretAIController::StaticClass();
 
 	TurretMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-
-	TurretMeshComponent->SetAnimInstanceClass(TSubclassOf<UTurretAnimInstance>());
+	TurretMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	TurretMeshComponent->SetAnimInstanceClass(UTurretAnimInstance::StaticClass());
 }
 
 void ATurret::BeginPlay()
@@ -51,6 +53,14 @@ void ATurret::Destroyed()
 	RemoveBindings();
 }
 
+void ATurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ATurret, CurrentRotation);
+	DOREPLIFETIME(ATurret, TargetRotation);
+	DOREPLIFETIME(ATurret, IsShooting);
+}
+
 void ATurret::AddBindings()
 {
 	HealthComponent->OnHealthChanged().AddUObject(this, &ATurret::OnHealthChanged);
@@ -63,7 +73,6 @@ void ATurret::RemoveBindings()
 
 void ATurret::OnHealthChanged(float CurrentHealth)
 {
-	UE_LOG(LogInput, Log, TEXT("HealthUPD"));
 	if (CurrentHealth <= 0.0f)
 	{
 		OnDead();
@@ -150,6 +159,9 @@ void ATurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateRotation(DeltaTime);
-	if (IsShooting)
-		CreateProjectile(DeltaTime);
+	if (HasAuthority())
+	{
+		if (IsShooting)
+			CreateProjectile(DeltaTime);
+	}
 }

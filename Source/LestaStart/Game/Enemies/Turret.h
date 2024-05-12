@@ -30,6 +30,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+	void DOPERLIFETIME() const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
@@ -45,9 +47,12 @@ protected:
 	void OnHealthChanged(float CurrentHealth);
 	void OnDead();
 
+	UPROPERTY(Replicated)
 	bool IsShooting;
-	
+
+	UPROPERTY(Replicated)
 	FRotator CurrentRotation;
+	UPROPERTY(Replicated)
 	FRotator TargetRotation;
 	
 	UPROPERTY()

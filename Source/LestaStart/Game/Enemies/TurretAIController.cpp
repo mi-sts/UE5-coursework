@@ -1,25 +1,26 @@
 ﻿
 #include "TurretAIController.h"
+
+#include "Kismet/KismetSystemLibrary.h"
 #include "LestaStart/Core/LestaCharacter.h"
+#include "LestaStart/Utils/TransformUtils.h"
 
-constexpr float SensingInterval = 0.5f;
-
-ATurretAIController::ATurretAIController() : VisibilityDistance(1200.0f)
+ATurretAIController::ATurretAIController() : DetectingInterval(0.5f), VisibilityDistance(1200.0f), IsFollowing(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SensingComponent"));
-	PawnSensingComponent->SensingInterval = SensingInterval;
-	PawnSensingComponent->bOnlySensePlayers = true;
-	PawnSensingComponent->SetPeripheralVisionAngle(180.0f);
-	PawnSensingComponent->SightRadius = VisibilityDistance;
-	PawnSensingComponent->bHearNoises = false;
 }
 
 void ATurretAIController::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PawnSensingComponent->OnSeePawn.AddDynamic(this, &ATurretAIController::OnSeePawn);
+	GetWorldTimerManager().SetTimer(
+		DetectionTimerHandle,
+		this,
+		&ATurretAIController::UpdateVisibleActors,
+		DetectingInterval,
+		true
+	);
+	UpdateVisibleActors();
 }
 
 void ATurretAIController::BeginPlay()
@@ -35,30 +36,32 @@ void ATurretAIController::BeginPlay()
 void ATurretAIController::Destroyed()
 {
 	Super::Destroyed();
-	PawnSensingComponent->OnSeePawn.RemoveAll(this);
 	GetWorldTimerManager().ClearAllTimersForObject(this);
 }
 
-void ATurretAIController::OnSeePawn(APawn* OtherPawn)
+void ATurretAIController::OnDetectActor(AActor* OtherActor)
 {
-	if (!IsValid(OtherPawn) || !OtherPawn->GetClass()->IsChildOf<ALestaCharacter>() || !IsValid(ControlledTurret))
+	if (!IsValid(OtherActor) || !IsValid(ControlledTurret))
 	{
 		IsFollowing = false;
 		return;
 	}
 
 	IsFollowing = true;
-	LastSeenPawn = OtherPawn;
+	LastSeenActor = OtherActor;
 	ControlledTurret->StartShooting();
 	GetWorldTimerManager().ClearTimer(StopFollowingTimerHandle);
 	GetWorldTimerManager().SetTimer(
 		StopFollowingTimerHandle,
 		this,
 		&ATurretAIController::StopFollowing,
-		SensingInterval * 10.0f,
+		DetectingInterval * 10.0f,
 		false
 	);
-	FRotator LookAtPawnRotation = CalculateLookAtRotator(OtherPawn);
+	FRotator LookAtPawnRotation = TransformUtils::CalculateLookAtRotator(
+		ControlledTurret->GetActorLocation(),
+		OtherActor->GetActorLocation()
+	);
 	ControlledTurret->RotateTo(LookAtPawnRotation);
 }
 
@@ -68,25 +71,54 @@ void ATurretAIController::StopFollowing()
 	ControlledTurret->StopShooting();
 }
 
-FRotator ATurretAIController::CalculateLookAtRotator(APawn* OtherPawn)
+void ATurretAIController::UpdateVisibleActors()
 {
-	if (!IsValid(OtherPawn))
+	if (!IsValid(ControlledTurret))
+		return;
+
+	VisibleActors.Empty();
+	TArray<AActor*> OverlappedActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),
+		ControlledTurret->GetActorLocation(),
+		VisibilityDistance,
+		{},
+		ALestaCharacter::StaticClass(),
+		{},
+		OverlappedActors
+	))
 	{
-		UE_LOG(LogInput, Error, TEXT("Cannot calculate look at rotator, the target pawn is not valid!"));
-		return FRotator(0.0f);
+		for (AActor* OverlappedActor : OverlappedActors)
+		{
+			if (!IsValid(OverlappedActor))
+				return;
+			
+			VisibleActors.Add(OverlappedActor);
+		}
 	}
-	
-	FVector TurretToPlayerDirection = OtherPawn->GetTargetLocation() - ControlledTurret->GetActorLocation();
-	TurretToPlayerDirection.Z = 0.0f;
-	return FRotationMatrix::MakeFromX(TurretToPlayerDirection).Rotator();
+
+	if (!VisibleActors.IsEmpty())
+	{
+		if (VisibleActors.Contains(LastSeenActor))
+		{
+			OnDetectActor(LastSeenActor);
+		}
+		else
+		{
+			OnDetectActor(VisibleActors[0]);	
+		}
+	}
 }
 
 void ATurretAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (IsFollowing && IsValid(LastSeenPawn))
+	if (IsValid(ControlledTurret) && IsFollowing && IsValid(LastSeenActor))
 	{
-		FRotator LookAtPawnRotation = CalculateLookAtRotator(LastSeenPawn);
+		FRotator LookAtPawnRotation = TransformUtils::CalculateLookAtRotator(
+			ControlledTurret->GetActorLocation(),
+			LastSeenActor->GetActorLocation()
+		);
 		ControlledTurret->RotateTo(LookAtPawnRotation);
 	}
 }

@@ -5,9 +5,12 @@
 #include "Camera/CameraComponent.h"
 #include "LestaStart/Game/Weapon/LaserWeapon.h"
 #include "LestaStart/Game/Weapon/SphereWeapon.h"
+#include "LestaStart/UI/HealthbarWidgetComponent.h"
 
 ALestaCharacter::ALestaCharacter()
 {
+	ACharacter::SetReplicateMovement(true);
+	
 	NetUpdateFrequency = 10.f;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
@@ -17,6 +20,10 @@ ALestaCharacter::ALestaCharacter()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	WeaponSocketTransform = GetMesh()->GetSocketTransform(WeaponSocketName, RTS_World);
+
+	SimulatedPlayerHealthbarWidgetComponent =
+		CreateDefaultSubobject<UHealthbarWidgetComponent>("HealthbarWidgetComponent");
+	SimulatedPlayerHealthbarWidgetComponent->SetupAttachment(GetMesh());
 }
 
 void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -51,14 +58,26 @@ float ALestaCharacter::GetHealth()
 	return HealthComponent->GetHealth();
 }
 
+float ALestaCharacter::GetMaxHealth()
+{
+	if (!IsValid(HealthComponent))
+	{
+		UE_LOG(LogInput, Error, TEXT("The character health component is not valid!"));
+		return 100.0f;
+	}
+
+	return HealthComponent->GetMaxHealth();
+}
+
 void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	AddBindings();
+
 	FirstWeapon = SpawnWeapon(ASphereWeapon::StaticClass());
 	SecondWeapon = SpawnWeapon(ALaserWeapon::StaticClass());
 	AttachWeapon(SecondWeapon);
 	
-	AddBindings();
 }
 
 void ALestaCharacter::AddBindings()
@@ -133,10 +152,11 @@ void ALestaCharacter::OnSecondWeaponInput(const FInputActionInstance& InputActio
 
 void ALestaCharacter::OnHealthChanged(float CurrentHealth)
 {
+	if (IsValid(SimulatedPlayerHealthbarWidgetComponent))
+		SimulatedPlayerHealthbarWidgetComponent->SetHealthPercent(GetHealth() / GetMaxHealth());
+	
 	if (CurrentHealth <= 0.0f)
-	{
 		OnDead();
-	}
 }
 
 void ALestaCharacter::OnDead()

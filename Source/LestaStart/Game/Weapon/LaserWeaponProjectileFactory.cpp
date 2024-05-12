@@ -20,13 +20,24 @@ void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 	FTransform CameraTransform = PlayerCameraTransformGetter();
 	FVector LaserStartPoint = MuzzleTransform.GetLocation();
 	FVector LaserEndPoint = LaserStartPoint + CameraTransform.GetRotation().GetForwardVector() * LaserHitDistance;
+	
 	FHitResult LaserHitResult;
-	if (GetWorld()->LineTraceSingleByChannel(LaserHitResult, LaserStartPoint, LaserEndPoint, ECC_Visibility))
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetWeaponOwner());
+	
+	if (GetWorld()->LineTraceSingleByChannel(
+		LaserHitResult,
+		LaserStartPoint,
+		LaserEndPoint,
+		ECC_Visibility,
+		CollisionParams
+	))
 	{
 		LaserEndPoint = LaserHitResult.Location;
 		AActor* HitActor = LaserHitResult.GetActor();
 		if (IsValid(HitActor))
 		{
+			UE_LOG(LogInput, Error, TEXT("Hit"));
 			FDamageEvent DamageEvent;
 			HitActor->TakeDamage(Damage, DamageEvent, nullptr, GetWeaponOwner());
 		}
