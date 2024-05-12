@@ -34,13 +34,9 @@ void ALestaPlayerController::BeginPlay()
 void ALestaPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (IsValid(ControlledCharacter) && IsValid(PlayerUIWidget)) {
-		PlayerUIWidget->SetHealthbarPercent(ControlledCharacter->GetHealth() / ControlledCharacter->GetMaxHealth());
-	}
-}
-
-void ALestaPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-	ControlledCharacter = Cast<ALestaCharacter>(InPawn);
+	ALestaCharacter* PlayerCharacter = Cast<ALestaCharacter>(GetCharacter());
+	if (!IsValid(PlayerCharacter) || !IsValid(PlayerUIWidget))
+		return;
+	
+	PlayerUIWidget->SetHealthbarPercent(PlayerCharacter->GetHealth() / PlayerCharacter->GetMaxHealth());
 }

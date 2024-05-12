@@ -25,6 +25,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
 	bool SetHealth(float Value);
@@ -40,8 +41,10 @@ protected:
 		AActor* DamageCauser
 	);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 	float MaxHealth;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_HealthIsReplicated)
 	float Health;
+	UFUNCTION()
+	void OnRep_HealthIsReplicated();
 };

@@ -16,8 +16,18 @@ public:
 	ULaserWeaponProjectileFactory();
 
 protected:
-	virtual void OnProjectileCreation(float Damage) override;
-
 	UPROPERTY(EditAnywhere)
 	float LaserHitDistance = 1000.0f;
+
+	virtual void OnProjectileCreation(float Damage) override;
+	bool GetLaserTraceHitResult(FHitResult& HitResult);
+	UFUNCTION(Client, Unreliable)
+	void ClientVisualizeLaserTrace();
+	UFUNCTION(Server, Reliable)
+	void ServerCreateDamageTrace(float Damage);
+	UFUNCTION(Server, Reliable)
+	void ServerApplyTraceDamage(AActor* ToActor, float Damage, FDamageEvent DamageEvent, AActor* DamageCauser);
+
+	FVector GetLaserTraceStartLocation();
+	FVector GetLaserTraceStartToEndVector();
 };

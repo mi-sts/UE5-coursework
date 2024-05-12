@@ -1,6 +1,7 @@
 ﻿
 #include "LaserWeaponProjectileFactory.h"
 #include "Engine/DamageEvents.h"
+#include "LestaStart/Utils/DamageSystemUtils.h"
 
 
 ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
@@ -9,38 +10,99 @@ ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
 
 void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
 {
-	if (PlayerCameraTransformGetter == nullptr ||
-		WeaponMuzzleTransformGetter == nullptr)
+	FHitResult LaserHitResult;
+	
+	if (GetWeaponOwner()->HasAuthority()) {
+		if (GetLaserTraceHitResult(LaserHitResult))
+		{
+			ServerCreateDamageTrace(Damage);
+		}
+	}
+	else
 	{
-		UE_LOG(LogInput, Error, TEXT("Unable to create a laser projectile!"));
-		return;
+		ClientVisualizeLaserTrace();	
+	}
+}
+
+bool ULaserWeaponProjectileFactory::GetLaserTraceHitResult(FHitResult& HitResult)
+{
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetWeaponOwner());
+
+	FVector LaserStartLocation = GetLaserTraceStartLocation();
+	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
+	
+	return GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		LaserStartLocation,
+		LaserEndLocation,
+		ECC_Visibility,
+		CollisionParams
+	);
+}
+
+void ULaserWeaponProjectileFactory::ClientVisualizeLaserTrace_Implementation()
+{
+	FHitResult LaserHitResult;
+
+	FVector LaserStartLocation = GetLaserTraceStartLocation();
+	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
+	
+	if (GetLaserTraceHitResult(LaserHitResult))
+	{
+		LaserEndLocation = LaserHitResult.TraceEnd;
+	}
+
+	DrawDebugLine(GetWorld(), LaserStartLocation, LaserEndLocation, FColor::Purple);
+}
+
+void ULaserWeaponProjectileFactory::ServerCreateDamageTrace_Implementation(float Damage)
+{
+	FHitResult DamageTraceHitResult;
+	if (GetLaserTraceHitResult(DamageTraceHitResult))
+	{
+		AActor* HitActor = DamageTraceHitResult.GetActor();
+		if (IsValid(HitActor))
+		{
+			FDamageEvent DamageEvent;
+			ServerApplyTraceDamage(HitActor, Damage, DamageEvent, GetWeaponOwner());
+		}
+	}
+}
+
+void ULaserWeaponProjectileFactory::ServerApplyTraceDamage_Implementation(
+	AActor* ToActor, 
+	float Damage,
+	FDamageEvent DamageEvent,
+	AActor* DamageCauser
+)
+{
+	if (IsValid(ToActor))
+		ToActor->TakeDamage(Damage, DamageEvent, nullptr, DamageCauser);
+	DamageSystemUtils::CheckActorDeath(ToActor);
+}
+
+FVector ULaserWeaponProjectileFactory::GetLaserTraceStartLocation()
+{
+	if (WeaponMuzzleTransformGetter == nullptr)
+	{
+		UE_LOG(LogInput, Error, TEXT("The weapon muzzle getter is null!"));
+		return FVector(0.0f);
 	}
 	
 	FTransform MuzzleTransform = WeaponMuzzleTransformGetter();
-	FTransform CameraTransform = PlayerCameraTransformGetter();
-	FVector LaserStartPoint = MuzzleTransform.GetLocation();
-	FVector LaserEndPoint = LaserStartPoint + CameraTransform.GetRotation().GetForwardVector() * LaserHitDistance;
-	
-	FHitResult LaserHitResult;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(GetWeaponOwner());
-	
-	if (GetWorld()->LineTraceSingleByChannel(
-		LaserHitResult,
-		LaserStartPoint,
-		LaserEndPoint,
-		ECC_Visibility,
-		CollisionParams
-	))
+	return MuzzleTransform.GetLocation();
+}
+
+FVector ULaserWeaponProjectileFactory::GetLaserTraceStartToEndVector()
+{
+	if (WeaponMuzzleTransformGetter == nullptr)
 	{
-		LaserEndPoint = LaserHitResult.Location;
-		AActor* HitActor = LaserHitResult.GetActor();
-		if (IsValid(HitActor))
-		{
-			UE_LOG(LogInput, Error, TEXT("Hit"));
-			FDamageEvent DamageEvent;
-			HitActor->TakeDamage(Damage, DamageEvent, nullptr, GetWeaponOwner());
-		}
+		UE_LOG(LogInput, Error, TEXT("The camera transform getter is null!"));
+		return FVector(0.0f);
 	}
-	DrawDebugLine(GetWorld(), LaserStartPoint, LaserEndPoint, FColor::Purple);
+	
+	FTransform CameraTransform = PlayerCameraTransformGetter();
+	return CameraTransform.GetRotation().GetForwardVector() * LaserHitDistance;
+
 }

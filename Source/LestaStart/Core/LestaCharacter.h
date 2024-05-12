@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "LestaStart/Game/Common/Deadable.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/Weapon.h"
 #include "LestaStart/UI/HealthbarWidgetComponent.h"
@@ -14,7 +15,7 @@ class UCameraComponent;
 
 /** Base Character class for the Lesta Start project. */
 UCLASS()
-class LESTASTART_API ALestaCharacter : public ACharacter
+class LESTASTART_API ALestaCharacter : public ACharacter, public IDeadable
 {
 	GENERATED_BODY()
 
@@ -68,7 +69,7 @@ protected:
 	TObjectPtr<UHealthbarWidgetComponent> SimulatedPlayerHealthbarWidgetComponent;
 	
 	FTransform WeaponSocketTransform;
-
+	
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 	
@@ -79,7 +80,10 @@ protected:
 	virtual void OnSecondWeaponInput(const FInputActionInstance& InputActionInstance);
 
 	virtual void OnHealthChanged(float CurrentHealth);
-	virtual void OnDead();
+	virtual void OnDie() override;
+
+	UFUNCTION(Client, Reliable)
+	void ClientDead();
 
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
 	void AttachWeapon(AWeapon* AttachingWeapon);
@@ -87,5 +91,4 @@ protected:
 private:
 	void AddBindings();
 	void RemoveBindings();
-	void InitializeSimulatedPlayerUIWidget();
 };

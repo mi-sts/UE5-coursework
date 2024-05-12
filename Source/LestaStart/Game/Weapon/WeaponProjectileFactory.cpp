@@ -1,10 +1,12 @@
 ﻿
 #include "WeaponProjectileFactory.h"
 
+#include "Net/UnrealNetwork.h"
+
 
 UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGetter(nullptr),
-	PlayerCameraTransformGetter(nullptr),
-	IsCreationEnabled(false)
+                                                      PlayerCameraTransformGetter(nullptr),
+                                                      IsCreationEnabled(false)
 {
 }
 

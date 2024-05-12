@@ -33,12 +33,8 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UPlayerUIWidget> PlayerUIWidget;
 	
-	UPROPERTY()
-	ALestaCharacter* ControlledCharacter;
-	
 	void InitializeLocalPlayerUI();
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void OnPossess(APawn* InPawn) override;
 };

@@ -18,14 +18,17 @@ ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f), IsShooting(fa
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
+	AActor::SetReplicateMovement(false);
+	
 	InitializeMesh();
 
 	UWeaponProjectileFactory* InitialProjectileFactory =
 		CreateDefaultSubobject<ULaserWeaponProjectileFactory>("ProjectileFactory");
 	AssignProjectileFactory(InitialProjectileFactory);
-
+	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
+	HealthComponent->SetIsReplicated(true);
+	
 	AIControllerClass = ATurretAIController::StaticClass();
 
 	TurretMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -56,9 +59,11 @@ void ATurret::Destroyed()
 void ATurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATurret, CurrentRotation);
 	DOREPLIFETIME(ATurret, TargetRotation);
 	DOREPLIFETIME(ATurret, IsShooting);
+	DOREPLIFETIME(ATurret, RotationSpeed);
+	DOREPLIFETIME(ATurret, DamagePerSecond);
+	DOREPLIFETIME(ATurret, AssignedProjectileFactory);
 }
 
 void ATurret::AddBindings()
@@ -111,9 +116,11 @@ void ATurret::AssignProjectileFactory(UWeaponProjectileFactory* ProjectileFactor
 	if (IsValid(AssignedProjectileFactory))
 	{
 		AssignedProjectileFactory->Deactivate();
+		AssignedProjectileFactory->SetIsReplicated(false);
 		AssignedProjectileFactory->DestroyComponent();
 	}
-	
+
+	ProjectileFactory->SetIsReplicated(true);
 	AssignedProjectileFactory = ProjectileFactory;
 	auto GetMuzzleTransform = [&](){ 
 		FTransform MuzzleTransform = TurretMeshComponent->GetSocketTransform(MuzzleSocketName);
@@ -159,9 +166,6 @@ void ATurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateRotation(DeltaTime);
-	if (HasAuthority())
-	{
-		if (IsShooting)
-			CreateProjectile(DeltaTime);
-	}
+	if (IsShooting)
+		CreateProjectile(DeltaTime);
 }

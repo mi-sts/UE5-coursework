@@ -9,6 +9,7 @@
 
 ALestaCharacter::ALestaCharacter()
 {
+	bReplicates = true;
 	ACharacter::SetReplicateMovement(true);
 	
 	NetUpdateFrequency = 10.f;
@@ -18,6 +19,7 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->SetIsReplicated(true);
 
 	WeaponSocketTransform = GetMesh()->GetSocketTransform(WeaponSocketName, RTS_World);
 
@@ -156,13 +158,24 @@ void ALestaCharacter::OnHealthChanged(float CurrentHealth)
 		SimulatedPlayerHealthbarWidgetComponent->SetHealthPercent(GetHealth() / GetMaxHealth());
 	
 	if (CurrentHealth <= 0.0f)
-		OnDead();
+		Die();
 }
 
-void ALestaCharacter::OnDead()
-{
+void ALestaCharacter::OnDie()
+{	
 	GetMesh()->SetSimulatePhysics(true);
-	GetController()->GetPawn()->DisableInput(nullptr);
+	ClientDead();
+}
+
+void ALestaCharacter::ClientDead_Implementation()
+{
+	if (IsDead())
+		return;
+	
+	Dead = true;
+	GetMesh()->SetSimulatePhysics(true);
+	if (IsValid(GetController()) && IsValid(GetController()->GetPawn()))
+		GetController()->GetPawn()->DisableInput(nullptr);
 }
 
 AWeapon* ALestaCharacter::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass)

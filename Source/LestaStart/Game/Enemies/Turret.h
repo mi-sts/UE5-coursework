@@ -35,11 +35,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UHealthComponent> HealthComponent;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 	float RotationSpeed;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	UWeaponProjectileFactory* AssignedProjectileFactory;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 	float DamagePerSecond;
 	
 	void AddBindings();
@@ -50,7 +50,7 @@ protected:
 	UPROPERTY(Replicated)
 	bool IsShooting;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	FRotator CurrentRotation;
 	UPROPERTY(Replicated)
 	FRotator TargetRotation;
