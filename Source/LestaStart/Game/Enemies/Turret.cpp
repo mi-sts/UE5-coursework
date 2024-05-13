@@ -58,7 +58,7 @@ void ATurret::Destroyed()
 
 void ATurret::OnDie()
 {
-	Destroy();
+	Destroy(true);
 }
 
 void ATurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
