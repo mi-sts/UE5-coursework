@@ -18,6 +18,7 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
 	CameraComponent->bUsePawnControlRotation = true; // Camera rotation is synchronized with Player Controller rotation
 	CameraComponent->SetupAttachment(GetMesh());
+	CameraComponent->SetIsReplicated(true);
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetIsReplicated(true);
@@ -27,6 +28,14 @@ ALestaCharacter::ALestaCharacter()
 	SimulatedPlayerHealthbarWidgetComponent =
 		CreateDefaultSubobject<UHealthbarWidgetComponent>("HealthbarWidgetComponent");
 	SimulatedPlayerHealthbarWidgetComponent->SetupAttachment(GetMesh());
+}
+
+void ALestaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ALestaCharacter, AttachedWeapon);
+	DOREPLIFETIME(ALestaCharacter, CameraComponent);
+	DOREPLIFETIME(ALestaCharacter, HealthComponent);
 }
 
 void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,6 +85,7 @@ void ALestaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	AddBindings();
+	AnimInstance = Cast<ULestaCharacterAnimInstance>(GetMesh()->GetAnimInstance());
 
 	SpawnInitialWeapons();
 }
@@ -95,6 +105,14 @@ void ALestaCharacter::AddBindings()
 void ALestaCharacter::RemoveBindings()
 {
 	HealthComponent->OnHealthChanged().RemoveAll(this);
+}
+
+void ALestaCharacter::OnRep_AttachedWeapon()
+{
+	if (IsValid(AttachedWeapon))
+	{
+		AttachedWeapon->Activate(CameraComponent);
+	}
 }
 
 void ALestaCharacter::Destroyed()
@@ -121,6 +139,9 @@ void ALestaCharacter::OnLookInput(const FInputActionInstance& InputActionInstanc
 	const FVector2D Input2D = InputActionInstance.GetValue().Get<FVector2D>();
 	AddControllerYawInput(Input2D.X);
 	AddControllerPitchInput(Input2D.Y);
+	float ControlPitch = FMath::ClampAngle(GetControlRotation().Pitch, -90.0f, 90.0f);
+	float CameraPitch = CameraComponent->GetComponentRotation().Pitch;
+	ServerUpdateCharacterPitch(ControlPitch, CameraPitch);
 }
 
 void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstance)
@@ -131,12 +152,47 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 	const bool IsPressed = InputActionInstance.GetValue().Get<bool>();
 	if (IsPressed)
 	{
-		AttachedWeapon->PullTrigger();
+		ServerPullTrigger();
 	}
 	else
 	{
-		AttachedWeapon->ReleaseTrigger();
+		ServerReleaseTrigger();
 	}
+}
+
+void ALestaCharacter::MulticastUpdateCharacterPitch_Implementation(float ControlPitch, float CameraPitch)
+{
+	if (!IsLocallyControlled())
+	{
+		AnimInstance->SetPitch(ControlPitch);
+		if (IsValid(CameraComponent))
+		{
+			FRotator CameraRotation = CameraComponent->GetComponentRotation();
+			CameraRotation.Pitch = CameraPitch;
+			CameraComponent->SetWorldRotation(CameraRotation);
+		}
+	}
+}
+
+void ALestaCharacter::ServerUpdateCharacterPitch_Implementation(float ControlPitch, float CameraPitch)
+{
+	MulticastUpdateCharacterPitch(ControlPitch, CameraPitch);
+}
+
+void ALestaCharacter::ServerPullTrigger_Implementation()
+{
+	if (!IsValid(AttachedWeapon))
+		return;
+	
+	AttachedWeapon->PullTrigger();
+}
+
+void ALestaCharacter::ServerReleaseTrigger_Implementation()
+{
+	if (!IsValid(AttachedWeapon))
+		return;
+	
+	AttachedWeapon->ReleaseTrigger();
 }
 
 void ALestaCharacter::OnFirstWeaponInput(const FInputActionInstance& InputActionInstance)
@@ -198,7 +254,7 @@ AWeapon* ALestaCharacter::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass)
 	return SpawnedWeapon;
 }
 
-void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
+void ALestaCharacter::AttachWeapon_Implementation(AWeapon* AttachingWeapon)
 {
 	if (!IsValid(AttachingWeapon))
 	{

@@ -1,7 +1,5 @@
 ﻿
 #include "HealthComponent.h"
-
-#include "LestaStart/Core/LestaCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent(): MaxHealth(100.0f), Health(MaxHealth)

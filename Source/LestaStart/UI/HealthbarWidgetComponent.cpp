@@ -3,7 +3,7 @@
 
 #include "HealthbarWidgetComponent.h"
 
-#include "LestaStart/Core/LestaCharacter.h"
+#include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "LestaStart/Utils/TransformUtils.h"
 
 

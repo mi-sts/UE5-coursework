@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "LestaCharacterAnimInstance.h"
 #include "LestaStart/Game/Common/Deadable.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/Weapon.h"
@@ -32,16 +33,16 @@ public:
 	float GetMaxHealth();
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	TObjectPtr<UCameraComponent> CameraComponent;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	TObjectPtr<UHealthComponent> HealthComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_AttachedWeapon)
 	TObjectPtr<AWeapon> AttachedWeapon;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	TObjectPtr<AWeapon> FirstWeapon; 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Replicated)
 	TObjectPtr<AWeapon> SecondWeapon;
 	
 	/** Input action assigned to movement. */
@@ -69,6 +70,9 @@ protected:
 	TObjectPtr<UHealthbarWidgetComponent> SimulatedPlayerHealthbarWidgetComponent;
 	
 	FTransform WeaponSocketTransform;
+
+	UPROPERTY()
+	ULestaCharacterAnimInstance* AnimInstance;
 	
 	virtual void BeginPlay() override;
 	UFUNCTION(Server, Reliable)
@@ -78,6 +82,14 @@ protected:
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateCharacterPitch(float ControlPitch, float CameraPitch);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastUpdateCharacterPitch(float ControlPitch, float CameraPitch);
+	UFUNCTION(Server, Reliable)
+	void ServerPullTrigger();
+	UFUNCTION(Server, Reliable)
+	void ServerReleaseTrigger();
 	virtual void OnFirstWeaponInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnSecondWeaponInput(const FInputActionInstance& InputActionInstance);
 
@@ -88,9 +100,13 @@ protected:
 	void ClientDead();
 
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
+	UFUNCTION(Server, Reliable)
 	void AttachWeapon(AWeapon* AttachingWeapon);
 	
 private:
 	void AddBindings();
 	void RemoveBindings();
+
+	UFUNCTION()
+	void OnRep_AttachedWeapon();
 };

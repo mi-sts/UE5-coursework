@@ -56,8 +56,19 @@ void UWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 {
 }
 
+void UWeaponProjectileFactory::OnMulticastCreateProjectileView(float Damage)
+{
+}
+
 void UWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(float Damage)
 {
+	if (!IsValid(GetWeaponOwner()))
+		return;
+
+	if (GetWeaponOwner()->HasAuthority())
+		return;
+
+	OnMulticastCreateProjectileView(Damage);
 }
 
 AActor* UWeaponProjectileFactory::GetWeaponOwner()

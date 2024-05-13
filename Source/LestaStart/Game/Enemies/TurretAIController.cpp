@@ -2,7 +2,7 @@
 #include "TurretAIController.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-#include "LestaStart/Core/LestaCharacter.h"
+#include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "LestaStart/Utils/TransformUtils.h"
 
 ATurretAIController::ATurretAIController() : DetectingInterval(0.5f), VisibilityDistance(1200.0f), IsFollowing(false)

@@ -11,9 +11,10 @@ ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
 void ULaserWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 {
 	ServerCreateDamageTrace(Damage);
+	MulticastCreateProjectileView_Implementation(Damage);
 }
 
-void ULaserWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(float Damage)
+void ULaserWeaponProjectileFactory::OnMulticastCreateProjectileView(float Damage)
 {
 	FHitResult LaserHitResult;
 
@@ -22,7 +23,7 @@ void ULaserWeaponProjectileFactory::MulticastCreateProjectileView_Implementation
 	
 	if (GetLaserTraceHitResult(LaserHitResult))
 		LaserEndLocation = LaserHitResult.Location;
-
+	
 	DrawDebugLine(GetWorld(), LaserStartLocation, LaserEndLocation, FColor::Purple);
 }
 

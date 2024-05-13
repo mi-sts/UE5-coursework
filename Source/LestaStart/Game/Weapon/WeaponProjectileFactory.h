@@ -26,6 +26,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnServerProjectileCreation(float Damage);
+	virtual void OnMulticastCreateProjectileView(float Damage);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	virtual void MulticastCreateProjectileView(float Damage);

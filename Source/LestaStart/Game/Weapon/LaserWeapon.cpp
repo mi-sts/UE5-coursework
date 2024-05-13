@@ -4,6 +4,7 @@
 #include "LaserWeaponProjectileFactory.h"
 #include "Net/UnrealNetwork.h"
 
+const FString LaserWeaponMeshPath = FString("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol");
 
 ALaserWeapon::ALaserWeapon() : DamagePerSecond(10.0f)
 {
@@ -12,7 +13,7 @@ ALaserWeapon::ALaserWeapon() : DamagePerSecond(10.0f)
 
 	ProjectileFactory = CreateDefaultSubobject<ULaserWeaponProjectileFactory>(TEXT("ProjectileFactory"));
 	ProjectileFactory->SetIsReplicated(true);
-	InitializeMesh(FString("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
+	InitializeMesh(LaserWeaponMeshPath);
 }
 
 void ALaserWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
@@ -30,7 +31,7 @@ void ALaserWeapon::BeginPlay()
 void ALaserWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (IsTriggered)
+	if (IsTriggered && HasAuthority())
 		TakeShot(DamagePerSecond * DeltaTime);
 }
 

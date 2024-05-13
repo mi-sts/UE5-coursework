@@ -25,7 +25,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 	TObjectPtr<UWeaponProjectileFactory> ProjectileFactory;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UWeaponAmmoSystem> WeaponAmmoSystem;
@@ -43,7 +43,9 @@ protected:
 	FTransform GetMuzzleTransform();
 	FTransform GetCameraTransform();
 
-	UCameraComponent* PlayerCameraComponent; 
+	UPROPERTY(Replicated)
+	UCameraComponent* PlayerCameraComponent;
+	UPROPERTY(Replicated)
 	USkeletalMeshSocket* MuzzleSocket;
 	
 public:

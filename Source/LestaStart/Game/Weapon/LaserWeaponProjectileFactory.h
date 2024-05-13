@@ -20,7 +20,7 @@ protected:
 	float LaserHitDistance = 1000.0f;
 
 	virtual void OnServerProjectileCreation(float Damage) override;
-	virtual void MulticastCreateProjectileView_Implementation(float Damage) override;
+	virtual void OnMulticastCreateProjectileView(float Damage) override;
 	
 	bool GetLaserTraceHitResult(FHitResult& HitResult);
 	UFUNCTION(Server, Reliable)

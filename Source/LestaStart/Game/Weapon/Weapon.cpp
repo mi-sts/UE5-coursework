@@ -2,7 +2,7 @@
 #include "Weapon.h"
 
 #include "Engine/SkeletalMeshSocket.h"
-#include "LestaStart/Core/LestaCharacter.h"
+#include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -20,6 +20,9 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, IsTriggered);
 	DOREPLIFETIME(AWeapon, IsVisible);
+	DOREPLIFETIME(AWeapon, MuzzleSocket);
+	DOREPLIFETIME(AWeapon, PlayerCameraComponent);
+	DOREPLIFETIME(AWeapon, ProjectileFactory);
 }
 
 void AWeapon::PullTrigger()
@@ -107,10 +110,7 @@ void AWeapon::TakeShot(float Damage)
 	if (!IsValid(PlayerCharacter))
 		return;
 	
-	if (PlayerCharacter->IsLocallyControlled())
-	{
-		ProjectileFactory->ServerCreateProjectile(Damage);
-	}
+	ProjectileFactory->ServerCreateProjectile(Damage);
 }
 
 void AWeapon::Tick(float DeltaTime)
