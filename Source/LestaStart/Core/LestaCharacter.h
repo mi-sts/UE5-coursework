@@ -71,6 +71,8 @@ protected:
 	FTransform WeaponSocketTransform;
 	
 	virtual void BeginPlay() override;
+	UFUNCTION(Server, Reliable)
+	void SpawnInitialWeapons();
 	virtual void Destroyed() override;
 	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);

@@ -8,20 +8,22 @@ ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
 {
 }
 
-void ULaserWeaponProjectileFactory::OnProjectileCreation(float Damage)
+void ULaserWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
+{
+	ServerCreateDamageTrace(Damage);
+}
+
+void ULaserWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(float Damage)
 {
 	FHitResult LaserHitResult;
+
+	FVector LaserStartLocation = GetLaserTraceStartLocation();
+	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
 	
-	if (GetWeaponOwner()->HasAuthority()) {
-		if (GetLaserTraceHitResult(LaserHitResult))
-		{
-			ServerCreateDamageTrace(Damage);
-		}
-	}
-	else
-	{
-		ClientVisualizeLaserTrace();	
-	}
+	if (GetLaserTraceHitResult(LaserHitResult))
+		LaserEndLocation = LaserHitResult.Location;
+
+	DrawDebugLine(GetWorld(), LaserStartLocation, LaserEndLocation, FColor::Purple);
 }
 
 bool ULaserWeaponProjectileFactory::GetLaserTraceHitResult(FHitResult& HitResult)
@@ -39,19 +41,6 @@ bool ULaserWeaponProjectileFactory::GetLaserTraceHitResult(FHitResult& HitResult
 		ECC_Visibility,
 		CollisionParams
 	);
-}
-
-void ULaserWeaponProjectileFactory::ClientVisualizeLaserTrace_Implementation()
-{
-	FHitResult LaserHitResult;
-
-	FVector LaserStartLocation = GetLaserTraceStartLocation();
-	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
-	
-	if (GetLaserTraceHitResult(LaserHitResult))
-		LaserEndLocation = LaserHitResult.Location;
-
-	DrawDebugLine(GetWorld(), LaserStartLocation, LaserEndLocation, FColor::Purple);
 }
 
 void ULaserWeaponProjectileFactory::ServerCreateDamageTrace_Implementation(float Damage)
@@ -102,5 +91,4 @@ FVector ULaserWeaponProjectileFactory::GetLaserTraceStartToEndVector()
 	
 	FTransform CameraTransform = PlayerCameraTransformGetter();
 	return CameraTransform.GetRotation().GetForwardVector() * LaserHitDistance;
-
 }

@@ -13,8 +13,9 @@ class LESTASTART_API UWeaponProjectileFactory : public UActorComponent
 
 public:
 	UWeaponProjectileFactory();
-	
-	void CreateProjectile(float Damage);
+
+	UFUNCTION(Server, Reliable)
+	void ServerCreateProjectile(float Damage);
 	
 	virtual void EnableCreation();
 	virtual void DisableCreation();
@@ -24,14 +25,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void OnProjectileCreation(float Damage)
-	PURE_VIRTUAL(UWeaponProjectileFactory::CreateProjectile);
+	virtual void OnServerProjectileCreation(float Damage);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	virtual void MulticastCreateProjectileView(float Damage);
+	
 	AActor* GetWeaponOwner();
 
 	TFunction<FTransform()> WeaponMuzzleTransformGetter;
 	TFunction<FTransform()> PlayerCameraTransformGetter;
 
+	UPROPERTY(Replicated)
 	bool IsCreationEnabled;
 	
 public:

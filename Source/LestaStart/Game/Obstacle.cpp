@@ -4,6 +4,8 @@
 
 AObstacle::AObstacle()
 {
+	bReplicates = true;
+	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(FName("HealthComponent"));
 }
 
@@ -19,9 +21,13 @@ void AObstacle::Destroyed()
 	HealthComponent->OnHealthChanged().RemoveAll(this);
 }
 
+void AObstacle::OnDie()
+{
+	Destroy(true);
+}
+
 void AObstacle::OnHealthChanged(float CurrentHealth)
 {
-	UE_LOG(LogInput, Log, TEXT("Health %f"), CurrentHealth);
 	if (CurrentHealth <= 0.0f)
 		Destroy();
 }

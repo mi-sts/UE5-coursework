@@ -56,6 +56,11 @@ void ATurret::Destroyed()
 	RemoveBindings();
 }
 
+void ATurret::OnDie()
+{
+	Destroy();
+}
+
 void ATurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -159,7 +164,7 @@ void ATurret::CreateProjectile(float DeltaTime)
 	if (!IsValid(AssignedProjectileFactory))
 		return;
 
-	AssignedProjectileFactory->CreateProjectile(DamagePerSecond * DeltaTime);
+	AssignedProjectileFactory->ServerCreateProjectile(DamagePerSecond * DeltaTime);
 }
 
 void ATurret::Tick(float DeltaTime)

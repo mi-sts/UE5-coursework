@@ -2,13 +2,24 @@
 #include "Weapon.h"
 
 #include "Engine/SkeletalMeshSocket.h"
+#include "LestaStart/Core/LestaCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 
 AWeapon::AWeapon(): IsTriggered(false)
 {
+	bReplicates = true;
+	
 	WeaponAmmoSystem = CreateDefaultSubobject<UWeaponAmmoSystem>(TEXT("AmmoSystem"));
 	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	WeaponMeshComponent->SetupAttachment(RootComponent);
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeapon, IsTriggered);
+	DOREPLIFETIME(AWeapon, IsVisible);
 }
 
 void AWeapon::PullTrigger()
@@ -89,7 +100,17 @@ FTransform AWeapon::GetCameraTransform()
 
 void AWeapon::TakeShot(float Damage)
 {
-	ProjectileFactory->CreateProjectile(Damage);
+	if (!IsValid(GetAttachParentActor()) || !IsValid(ProjectileFactory))
+		return;
+
+	ALestaCharacter* PlayerCharacter = Cast<ALestaCharacter>(GetAttachParentActor());
+	if (!IsValid(PlayerCharacter))
+		return;
+	
+	if (PlayerCharacter->IsLocallyControlled())
+	{
+		ProjectileFactory->ServerCreateProjectile(Damage);
+	}
 }
 
 void AWeapon::Tick(float DeltaTime)

@@ -3,14 +3,20 @@
 
 #include "Net/UnrealNetwork.h"
 
-
 UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGetter(nullptr),
                                                       PlayerCameraTransformGetter(nullptr),
                                                       IsCreationEnabled(false)
 {
 }
 
-void UWeaponProjectileFactory::CreateProjectile(float Damage)
+void UWeaponProjectileFactory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UWeaponProjectileFactory, IsCreationEnabled);
+}
+
+
+void UWeaponProjectileFactory::ServerCreateProjectile_Implementation(float Damage)
 {
 	if (!IsCreationEnabled)
 	{
@@ -18,7 +24,8 @@ void UWeaponProjectileFactory::CreateProjectile(float Damage)
 		return;
 	}
 
-	OnProjectileCreation(Damage);
+	OnServerProjectileCreation(Damage);
+	MulticastCreateProjectileView(Damage);
 }
 
 void UWeaponProjectileFactory::EnableCreation()
@@ -43,6 +50,14 @@ void UWeaponProjectileFactory::Initialize(
 void UWeaponProjectileFactory::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
+{
+}
+
+void UWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(float Damage)
+{
 }
 
 AActor* UWeaponProjectileFactory::GetWeaponOwner()

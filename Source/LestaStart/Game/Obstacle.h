@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Common/Deadable.h"
 #include "Common/HealthComponent.h"
 #include "GameFramework/Actor.h"
 #include "Obstacle.generated.h"
 
 UCLASS()
-class LESTASTART_API AObstacle : public AActor
+class LESTASTART_API AObstacle : public AActor, public IDeadable
 {
 	GENERATED_BODY()
 
@@ -18,6 +19,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+	virtual void OnDie() override;
 
 	virtual void OnHealthChanged(float CurrentHealth);
 

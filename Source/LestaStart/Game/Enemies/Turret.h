@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "TurretAnimInstance.h"
 #include "GameFramework/Actor.h"
+#include "LestaStart/Game/Common/Deadable.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "Turret.generated.h"
 
 class UWeaponProjectileFactory;
 
 UCLASS()
-class LESTASTART_API ATurret : public APawn
+class LESTASTART_API ATurret : public APawn, public IDeadable
 {
 	GENERATED_BODY()
 
@@ -30,7 +31,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
-	void DOPERLIFETIME() const;
+	virtual void OnDie() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere)

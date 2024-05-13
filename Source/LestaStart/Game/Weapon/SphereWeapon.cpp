@@ -16,6 +16,7 @@ ASphereWeapon::ASphereWeapon():
 		CreateDefaultSubobject<USphereWeaponProjectileFactory>(TEXT("ProjectileFactory"));
 	SphereProjectileFactory->Initialize(DamageRadius);
 	ProjectileFactory = SphereProjectileFactory;
+	ProjectileFactory->SetIsReplicated(true);
 	
 	InitializeMesh(FString("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
 }

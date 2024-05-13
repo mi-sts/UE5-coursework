@@ -6,6 +6,7 @@
 #include "LestaStart/Game/Weapon/LaserWeapon.h"
 #include "LestaStart/Game/Weapon/SphereWeapon.h"
 #include "LestaStart/UI/HealthbarWidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ALestaCharacter::ALestaCharacter()
 {
@@ -17,7 +18,7 @@ ALestaCharacter::ALestaCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
 	CameraComponent->bUsePawnControlRotation = true; // Camera rotation is synchronized with Player Controller rotation
 	CameraComponent->SetupAttachment(GetMesh());
-
+	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetIsReplicated(true);
 
@@ -76,10 +77,14 @@ void ALestaCharacter::BeginPlay()
 	Super::BeginPlay();
 	AddBindings();
 
+	SpawnInitialWeapons();
+}
+
+void ALestaCharacter::SpawnInitialWeapons_Implementation()
+{
 	FirstWeapon = SpawnWeapon(ASphereWeapon::StaticClass());
 	SecondWeapon = SpawnWeapon(ALaserWeapon::StaticClass());
 	AttachWeapon(SecondWeapon);
-	
 }
 
 void ALestaCharacter::AddBindings()
@@ -205,6 +210,5 @@ void ALestaCharacter::AttachWeapon(AWeapon* AttachingWeapon)
 		AttachedWeapon->Deactivate();
 	
 	AttachedWeapon = AttachingWeapon;
-
 	AttachedWeapon->Activate(CameraComponent);
 }

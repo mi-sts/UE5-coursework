@@ -19,10 +19,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float LaserHitDistance = 1000.0f;
 
-	virtual void OnProjectileCreation(float Damage) override;
+	virtual void OnServerProjectileCreation(float Damage) override;
+	virtual void MulticastCreateProjectileView_Implementation(float Damage) override;
+	
 	bool GetLaserTraceHitResult(FHitResult& HitResult);
-	UFUNCTION(Client, Unreliable)
-	void ClientVisualizeLaserTrace();
 	UFUNCTION(Server, Reliable)
 	void ServerCreateDamageTrace(float Damage);
 	UFUNCTION(Server, Reliable)

@@ -2,15 +2,25 @@
 #include "LaserWeapon.h"
 
 #include "LaserWeaponProjectileFactory.h"
+#include "Net/UnrealNetwork.h"
 
 
 ALaserWeapon::ALaserWeapon() : DamagePerSecond(10.0f)
 {
+	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileFactory = CreateDefaultSubobject<ULaserWeaponProjectileFactory>(TEXT("ProjectileFactory"));
+	ProjectileFactory->SetIsReplicated(true);
 	InitializeMesh(FString("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
 }
+
+void ALaserWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ALaserWeapon, DamagePerSecond);
+}
+
 
 void ALaserWeapon::BeginPlay()
 {
