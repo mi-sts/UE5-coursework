@@ -3,7 +3,6 @@
 #include "LestaCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "LestaStart/Core/LestaGameMode.h"
 #include "LestaStart/Game/Weapon/LaserWeapon.h"
 #include "LestaStart/Game/Weapon/SphereWeapon.h"
@@ -36,6 +35,8 @@ void ALestaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ALestaCharacter, AttachedWeapon);
+	DOREPLIFETIME(ALestaCharacter, FirstWeapon);
+	DOREPLIFETIME(ALestaCharacter, SecondWeapon);
 	DOREPLIFETIME(ALestaCharacter, CameraComponent);
 	DOREPLIFETIME(ALestaCharacter, HealthComponent);
 }
@@ -52,6 +53,7 @@ void ALestaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EIC->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnShootInput);
 		EIC->BindAction(FirstWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnFirstWeaponInput);
 		EIC->BindAction(SecondWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnSecondWeaponInput);
+		EIC->BindAction(NextWeaponInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnNextWeaponInput);
 	}
 	else
 	{
@@ -89,11 +91,12 @@ void ALestaCharacter::BeginPlay()
 	AddBindings();
 	AnimInstance = Cast<ULestaCharacterAnimInstance>(GetMesh()->GetAnimInstance());
 
-	ServerSpawnInitialWeapons();
+	if (HasAuthority())
+		SpawnInitialWeapons();
 	ServerRegisterPlayer();
 }
 
-void ALestaCharacter::ServerSpawnInitialWeapons_Implementation()
+void ALestaCharacter::SpawnInitialWeapons()
 {
 	FirstWeapon = SpawnWeapon(ASphereWeapon::StaticClass());
 	SecondWeapon = SpawnWeapon(ALaserWeapon::StaticClass());
@@ -170,6 +173,12 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 	{
 		ServerReleaseTrigger();
 	}
+}
+
+void ALestaCharacter::OnNextWeaponInput(const FInputActionInstance& InputActionInstance)
+{
+	const float Input = InputActionInstance.GetValue().Get<float>();
+	UE_LOG(LogInput, Warning, TEXT("%f"), Input);
 }
 
 void ALestaCharacter::MulticastUpdateCharacterPitch_Implementation(float ControlPitch, float CameraPitch)

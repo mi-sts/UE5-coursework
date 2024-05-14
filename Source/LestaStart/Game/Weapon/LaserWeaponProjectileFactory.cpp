@@ -33,12 +33,13 @@ bool ULaserWeaponProjectileFactory::GetLaserTraceHitResult(FHitResult& HitResult
 
 	FVector LaserStartLocation = GetLaserTraceStartLocation();
 	FVector LaserEndLocation = LaserStartLocation + GetLaserTraceStartToEndVector();
+
 	
 	return GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		LaserStartLocation,
 		LaserEndLocation,
-		ECC_Visibility,
+		ECC_PhysicsBody,
 		CollisionParams
 	);
 }

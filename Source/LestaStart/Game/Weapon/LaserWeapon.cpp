@@ -8,7 +8,6 @@ const FString LaserWeaponMeshPath = FString("/Game/Weapons/Pistol/Mesh/SK_Pistol
 
 ALaserWeapon::ALaserWeapon() : DamagePerSecond(10.0f)
 {
-	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileFactory = CreateDefaultSubobject<ULaserWeaponProjectileFactory>(TEXT("ProjectileFactory"));
@@ -30,7 +29,19 @@ void ALaserWeapon::BeginPlay()
 void ALaserWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (IsTriggered && HasAuthority())
-		TakeShot(DamagePerSecond * DeltaTime);
+	if (IsTriggered)
+	{
+		float Damage = DamagePerSecond * DeltaTime;
+		if (HasAuthority())
+		{
+			TakeShot(Damage);
+		}
+		else
+		{
+			APawn* WeaponOwner = GetWeaponOwner();
+			if (IsValid(WeaponOwner) && WeaponOwner->IsLocallyControlled())
+				ProjectileFactory->CreateProjectileView(Damage);
+		}
+	}
 }
 

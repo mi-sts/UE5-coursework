@@ -15,10 +15,11 @@ public:
 	USphereWeaponProjectileFactory();
 
 	void Initialize(float SphereDamageRadius);
+	
+	virtual void CreateProjectileView(float Damage) override;
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void CreateProjectileView(float Damage) override;
 	virtual void OnServerProjectileCreation(float Damage) override;
 
 	UFUNCTION(Server, Reliable)

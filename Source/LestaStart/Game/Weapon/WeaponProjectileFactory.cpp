@@ -11,7 +11,10 @@ UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGette
 
 void UWeaponProjectileFactory::CreateProjectile(float Damage)
 {
-	CreateProjectileView(Damage);
+	APawn* WeaponOwner = Cast<APawn>(GetWeaponOwner());
+	if (!IsValid(WeaponOwner))
+		return;
+	
 	ServerCreateProjectile(Damage);
 }
 
@@ -31,7 +34,6 @@ void UWeaponProjectileFactory::ServerCreateProjectile_Implementation(float Damag
 	}
 
 	OnServerProjectileCreation(Damage);
-	CreateProjectileView(Damage);
 	MulticastCreateProjectileView(Damage);
 }
 
@@ -73,7 +75,8 @@ void UWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(floa
 	if (!IsValid(GetWeaponOwner()))
 		return;
 
-	if (GetWeaponOwner()->HasAuthority())
+	APawn* WeaponOwner = Cast<APawn>(GetWeaponOwner());
+	if (!IsValid(WeaponOwner) || WeaponOwner->HasAuthority() || WeaponOwner->IsLocallyControlled())
 		return;
 
 	CreateProjectileView(Damage);

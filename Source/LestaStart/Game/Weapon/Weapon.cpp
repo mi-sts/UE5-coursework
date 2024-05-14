@@ -5,7 +5,7 @@
 #include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "Net/UnrealNetwork.h"
 
-FString MuzzleSocketName = FString("MuzzleSocket");
+const FString MuzzleSocketName = FString("MuzzleSocket");
 
 AWeapon::AWeapon(): IsTriggered(false)
 {
@@ -22,6 +22,8 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME(AWeapon, IsTriggered);
 	DOREPLIFETIME(AWeapon, IsVisible);
 	DOREPLIFETIME(AWeapon, ProjectileFactory);
+	DOREPLIFETIME(AWeapon, PlayerCameraComponent);
+	DOREPLIFETIME(AWeapon, MuzzleSocket);
 }
 
 void AWeapon::PullTrigger()
@@ -105,13 +107,18 @@ FTransform AWeapon::GetCameraTransform()
 	return PlayerCameraComponent->GetComponentTransform();
 }
 
+APawn* AWeapon::GetWeaponOwner()
+{
+	return Cast<APawn>(GetAttachParentActor());
+}
+
 void AWeapon::TakeShot(float Damage)
 {
 	if (!IsValid(GetAttachParentActor()) || !IsValid(ProjectileFactory))
 		return;
 
 	ALestaCharacter* PlayerCharacter = Cast<ALestaCharacter>(GetAttachParentActor());
-	if (!IsValid(PlayerCharacter))
+	if (!IsValid(PlayerCharacter) || !PlayerCharacter->HasAuthority())
 		return;
 	
 	ProjectileFactory->CreateProjectile(Damage);

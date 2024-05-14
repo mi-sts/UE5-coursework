@@ -62,6 +62,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> SecondWeaponInputAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> NextWeaponInputAction;
 	
 	UPROPERTY(VisibleAnywhere)
 	FName WeaponSocketName = FName("weapon_socket");
@@ -75,8 +78,7 @@ protected:
 	ULestaCharacterAnimInstance* AnimInstance;
 	
 	virtual void BeginPlay() override;
-	UFUNCTION(Server, Reliable)
-	void ServerSpawnInitialWeapons();
+	void SpawnInitialWeapons();
 	UFUNCTION(Server, Reliable)
 	void ServerRegisterPlayer();
 	virtual void Destroyed() override;
@@ -84,6 +86,7 @@ protected:
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnLookInput(const FInputActionInstance& InputActionInstance);
 	virtual void OnShootInput(const FInputActionInstance& InputActionInstance);
+	virtual void OnNextWeaponInput(const FInputActionInstance& InputActionInstance);
 	UFUNCTION(Server, Reliable)
 	void ServerUpdateCharacterPitch(float ControlPitch, float CameraPitch);
 	UFUNCTION(NetMulticast, Reliable)

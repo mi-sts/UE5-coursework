@@ -16,6 +16,8 @@ public:
 
 	UFUNCTION()
 	void CreateProjectile(float Damage);
+	UFUNCTION()
+	virtual void CreateProjectileView(float Damage);
 	
 	virtual void EnableCreation();
 	virtual void DisableCreation();
@@ -26,7 +28,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnServerProjectileCreation(float Damage);
-	virtual void CreateProjectileView(float Damage);
 
 	UFUNCTION(Server, Reliable)
 	void ServerCreateProjectile(float Damage);

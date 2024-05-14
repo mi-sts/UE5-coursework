@@ -42,10 +42,11 @@ protected:
 	void InitializeMesh(const FString& MeshReferenceName);
 	FTransform GetMuzzleTransform();
 	FTransform GetCameraTransform();
+	APawn* GetWeaponOwner();
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	UCameraComponent* PlayerCameraComponent;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	USkeletalMeshSocket* MuzzleSocket;
 	
 public:

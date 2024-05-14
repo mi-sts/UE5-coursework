@@ -14,13 +14,14 @@ class LESTASTART_API ULaserWeaponProjectileFactory : public UWeaponProjectileFac
 
 public:
 	ULaserWeaponProjectileFactory();
+	
+	virtual void CreateProjectileView(float Damage) override;
 
 protected:
 	UPROPERTY(EditAnywhere)
 	float LaserHitDistance = 1000.0f;
 
 	virtual void OnServerProjectileCreation(float Damage) override;
-	virtual void CreateProjectileView(float Damage) override;
 	
 	bool GetLaserTraceHitResult(FHitResult& HitResult);
 	UFUNCTION(Server, Reliable)
