@@ -11,10 +11,9 @@ ULaserWeaponProjectileFactory::ULaserWeaponProjectileFactory()
 void ULaserWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 {
 	ServerCreateDamageTrace(Damage);
-	MulticastCreateProjectileView_Implementation(Damage);
 }
 
-void ULaserWeaponProjectileFactory::OnMulticastCreateProjectileView(float Damage)
+void ULaserWeaponProjectileFactory::CreateProjectileView(float Damage)
 {
 	FHitResult LaserHitResult;
 
@@ -84,7 +83,7 @@ FVector ULaserWeaponProjectileFactory::GetLaserTraceStartLocation()
 
 FVector ULaserWeaponProjectileFactory::GetLaserTraceStartToEndVector()
 {
-	if (WeaponMuzzleTransformGetter == nullptr)
+	if (PlayerCameraTransformGetter == nullptr)
 	{
 		UE_LOG(LogInput, Error, TEXT("The camera transform getter is null!"));
 		return FVector(0.0f);

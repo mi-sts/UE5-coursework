@@ -9,6 +9,12 @@ UWeaponProjectileFactory::UWeaponProjectileFactory(): WeaponMuzzleTransformGette
 {
 }
 
+void UWeaponProjectileFactory::CreateProjectile(float Damage)
+{
+	CreateProjectileView(Damage);
+	ServerCreateProjectile(Damage);
+}
+
 void UWeaponProjectileFactory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -56,9 +62,10 @@ void UWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 {
 }
 
-void UWeaponProjectileFactory::OnMulticastCreateProjectileView(float Damage)
+void UWeaponProjectileFactory::CreateProjectileView(float Damage)
 {
 }
+
 
 void UWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(float Damage)
 {
@@ -68,7 +75,7 @@ void UWeaponProjectileFactory::MulticastCreateProjectileView_Implementation(floa
 	if (GetWeaponOwner()->HasAuthority())
 		return;
 
-	OnMulticastCreateProjectileView(Damage);
+	CreateProjectileView(Damage);
 }
 
 AActor* UWeaponProjectileFactory::GetWeaponOwner()

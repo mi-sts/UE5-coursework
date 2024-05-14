@@ -164,7 +164,7 @@ void ATurret::CreateProjectile(float DeltaTime)
 	if (!IsValid(AssignedProjectileFactory))
 		return;
 
-	AssignedProjectileFactory->ServerCreateProjectile(DamagePerSecond * DeltaTime);
+	AssignedProjectileFactory->CreateProjectile(DamagePerSecond * DeltaTime);
 }
 
 void ATurret::Tick(float DeltaTime)

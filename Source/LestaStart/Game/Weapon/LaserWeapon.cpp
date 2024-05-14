@@ -22,7 +22,6 @@ void ALaserWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(ALaserWeapon, DamagePerSecond);
 }
 
-
 void ALaserWeapon::BeginPlay()
 {
 	Super::BeginPlay();

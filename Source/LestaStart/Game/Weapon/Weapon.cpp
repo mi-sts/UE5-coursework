@@ -5,6 +5,7 @@
 #include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "Net/UnrealNetwork.h"
 
+FString MuzzleSocketName = FString("MuzzleSocket");
 
 AWeapon::AWeapon(): IsTriggered(false)
 {
@@ -20,8 +21,8 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, IsTriggered);
 	DOREPLIFETIME(AWeapon, IsVisible);
-	DOREPLIFETIME(AWeapon, MuzzleSocket);
-	DOREPLIFETIME(AWeapon, PlayerCameraComponent);
+	//DOREPLIFETIME(AWeapon, MuzzleSocket);
+	//DOREPLIFETIME(AWeapon, PlayerCameraComponent);
 	DOREPLIFETIME(AWeapon, ProjectileFactory);
 }
 
@@ -38,6 +39,11 @@ void AWeapon::ReleaseTrigger()
 void AWeapon::Activate(UCameraComponent* CameraComponent)
 {
 	PlayerCameraComponent = CameraComponent;
+	if (IsValid(WeaponMeshComponent) && IsValid(WeaponMeshComponent->GetSkeletalMeshAsset()))
+	{
+		MuzzleSocket = WeaponMeshComponent->GetSkeletalMeshAsset()->FindSocket(*MuzzleSocketName);
+	}
+	
 	ProjectileFactory->Initialize(
 	[&]() { return GetMuzzleTransform(); },
 	[&]() { return GetCameraTransform(); }
@@ -75,7 +81,7 @@ void AWeapon::InitializeMesh(const FString& MeshReferenceName)
 		WeaponMeshComponent->SetRelativeLocation(FVector(0.0f));
 		WeaponMeshComponent->SetWorldScale3D(FVector(1.0f));
 		
-		MuzzleSocket = WeaponMeshFinder.Object->FindSocket(TEXT("MuzzleSocket"));
+		MuzzleSocket = WeaponMeshFinder.Object->FindSocket(*MuzzleSocketName);
 	}
 }
 
@@ -110,7 +116,7 @@ void AWeapon::TakeShot(float Damage)
 	if (!IsValid(PlayerCharacter))
 		return;
 	
-	ProjectileFactory->ServerCreateProjectile(Damage);
+	ProjectileFactory->CreateProjectile(Damage);
 }
 
 void AWeapon::Tick(float DeltaTime)

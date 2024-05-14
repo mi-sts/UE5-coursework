@@ -43,9 +43,9 @@ protected:
 	FTransform GetMuzzleTransform();
 	FTransform GetCameraTransform();
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	UCameraComponent* PlayerCameraComponent;
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	USkeletalMeshSocket* MuzzleSocket;
 	
 public:
