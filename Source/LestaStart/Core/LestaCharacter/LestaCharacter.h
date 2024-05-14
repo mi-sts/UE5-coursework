@@ -76,7 +76,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 	UFUNCTION(Server, Reliable)
-	void SpawnInitialWeapons();
+	void ServerSpawnInitialWeapons();
 	virtual void Destroyed() override;
 	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
@@ -101,7 +101,7 @@ protected:
 
 	AWeapon* SpawnWeapon(TSubclassOf<AWeapon> WeaponClass);
 	UFUNCTION(Server, Reliable)
-	void AttachWeapon(AWeapon* AttachingWeapon);
+	void ServerAttachWeapon(AWeapon* AttachingWeapon);
 	
 private:
 	void AddBindings();

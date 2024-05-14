@@ -87,14 +87,14 @@ void ALestaCharacter::BeginPlay()
 	AddBindings();
 	AnimInstance = Cast<ULestaCharacterAnimInstance>(GetMesh()->GetAnimInstance());
 
-	SpawnInitialWeapons();
+	ServerSpawnInitialWeapons();
 }
 
-void ALestaCharacter::SpawnInitialWeapons_Implementation()
+void ALestaCharacter::ServerSpawnInitialWeapons_Implementation()
 {
 	FirstWeapon = SpawnWeapon(ASphereWeapon::StaticClass());
 	SecondWeapon = SpawnWeapon(ALaserWeapon::StaticClass());
-	AttachWeapon(SecondWeapon);
+	ServerAttachWeapon(SecondWeapon);
 }
 
 void ALestaCharacter::AddBindings()
@@ -201,7 +201,7 @@ void ALestaCharacter::OnFirstWeaponInput(const FInputActionInstance& InputAction
 	if (!IsPressed)
 		return;
 
-	AttachWeapon(FirstWeapon);
+	ServerAttachWeapon(FirstWeapon);
 }
 
 void ALestaCharacter::OnSecondWeaponInput(const FInputActionInstance& InputActionInstance)
@@ -210,7 +210,7 @@ void ALestaCharacter::OnSecondWeaponInput(const FInputActionInstance& InputActio
 	if (!IsPressed)
 		return;
 
-	AttachWeapon(SecondWeapon);
+	ServerAttachWeapon(SecondWeapon);
 }
 
 void ALestaCharacter::OnHealthChanged(float CurrentHealth)
@@ -254,7 +254,7 @@ AWeapon* ALestaCharacter::SpawnWeapon(TSubclassOf<AWeapon> WeaponClass)
 	return SpawnedWeapon;
 }
 
-void ALestaCharacter::AttachWeapon_Implementation(AWeapon* AttachingWeapon)
+void ALestaCharacter::ServerAttachWeapon_Implementation(AWeapon* AttachingWeapon)
 {
 	if (!IsValid(AttachingWeapon))
 	{

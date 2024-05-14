@@ -18,6 +18,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void CreateProjectileView(float Damage) override;
 	virtual void OnServerProjectileCreation(float Damage) override;
 
 	float DamageRadius;

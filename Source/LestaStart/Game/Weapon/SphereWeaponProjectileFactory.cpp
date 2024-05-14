@@ -23,10 +23,9 @@ void USphereWeaponProjectileFactory::BeginPlay()
 	Super::BeginPlay();
 }
 
-void USphereWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
+void USphereWeaponProjectileFactory::CreateProjectileView(float Damage)
 {
-	FTransform CameraTransform = PlayerCameraTransformGetter();
-	FVector CameraLocation = CameraTransform.GetLocation() + FVector(100.0, 0.0, 0.0);
+	FVector CameraLocation = PlayerCameraTransformGetter().GetLocation();
 	DrawDebugSphere(
 		GetWorld(),
 		CameraLocation,
@@ -36,6 +35,11 @@ void USphereWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 		false,
 		3.0f
 	);
+}
+
+void USphereWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
+{
+	FVector CameraLocation = PlayerCameraTransformGetter().GetLocation();
 	AActor* WeaponOwner = GetWeaponOwner();
 
 	UGameplayStatics::ApplyRadialDamage(

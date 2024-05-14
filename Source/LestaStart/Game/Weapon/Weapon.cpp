@@ -21,8 +21,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, IsTriggered);
 	DOREPLIFETIME(AWeapon, IsVisible);
-	//DOREPLIFETIME(AWeapon, MuzzleSocket);
-	//DOREPLIFETIME(AWeapon, PlayerCameraComponent);
 	DOREPLIFETIME(AWeapon, ProjectileFactory);
 }
 
