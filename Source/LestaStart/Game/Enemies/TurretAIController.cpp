@@ -90,8 +90,9 @@ void ATurretAIController::UpdateVisibleActors()
 	{
 		for (AActor* OverlappedActor : OverlappedActors)
 		{
-			if (!IsValid(OverlappedActor))
-				return;
+			IDeadable* ActorDeadable = Cast<IDeadable>(OverlappedActor);
+			if (!IsValid(OverlappedActor) || ActorDeadable->IsDead())
+				continue;
 			
 			VisibleActors.Add(OverlappedActor);
 		}

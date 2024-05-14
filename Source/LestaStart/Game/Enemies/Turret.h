@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "LestaStart/Game/Common/Deadable.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
+#include "LestaStart/UI/HealthbarWidgetComponent.h"
 #include "Turret.generated.h"
 
 class UWeaponProjectileFactory;
@@ -42,6 +43,9 @@ protected:
 	UWeaponProjectileFactory* AssignedProjectileFactory;
 	UPROPERTY(EditAnywhere, Replicated)
 	float DamagePerSecond;
+
+	UPROPERTY(EditDefaultsOnly)
+	UHealthbarWidgetComponent* TurretHealthbarWidgetComponent;
 	
 	void AddBindings();
 	void RemoveBindings();

@@ -3,6 +3,8 @@
 #include "LestaCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "LestaStart/Core/LestaGameMode.h"
 #include "LestaStart/Game/Weapon/LaserWeapon.h"
 #include "LestaStart/Game/Weapon/SphereWeapon.h"
 #include "LestaStart/UI/HealthbarWidgetComponent.h"
@@ -88,6 +90,7 @@ void ALestaCharacter::BeginPlay()
 	AnimInstance = Cast<ULestaCharacterAnimInstance>(GetMesh()->GetAnimInstance());
 
 	ServerSpawnInitialWeapons();
+	ServerRegisterPlayer();
 }
 
 void ALestaCharacter::ServerSpawnInitialWeapons_Implementation()
@@ -113,6 +116,15 @@ void ALestaCharacter::OnRep_AttachedWeapon()
 	{
 		AttachedWeapon->Activate(CameraComponent);
 	}
+}
+
+void ALestaCharacter::ServerRegisterPlayer_Implementation()
+{
+	ALestaGameMode* GameMode = Cast<ALestaGameMode>(GetWorld()->GetAuthGameMode());
+	if (!IsValid(GameMode))
+		return;
+
+	GameMode->ServerRegisterPlayer(this);
 }
 
 void ALestaCharacter::Destroyed()
@@ -162,7 +174,7 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 
 void ALestaCharacter::MulticastUpdateCharacterPitch_Implementation(float ControlPitch, float CameraPitch)
 {
-	if (!IsLocallyControlled())
+	if (!IsLocallyControlled() && IsValid(AnimInstance))
 	{
 		AnimInstance->SetPitch(ControlPitch);
 		if (IsValid(CameraComponent))
@@ -223,9 +235,19 @@ void ALestaCharacter::OnHealthChanged(float CurrentHealth)
 }
 
 void ALestaCharacter::OnDie()
-{	
-	GetMesh()->SetSimulatePhysics(true);
+{
+	ServerHandleDeath();
 	ClientDead();
+}
+
+void ALestaCharacter::ServerHandleDeath_Implementation()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	ALestaGameMode* GameMode = Cast<ALestaGameMode>(GetWorld()->GetAuthGameMode());
+	if (!IsValid(GameMode))
+		return;
+
+	GameMode->ServerHandlePlayerDeath(this);
 }
 
 void ALestaCharacter::ClientDead_Implementation()

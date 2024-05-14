@@ -5,6 +5,7 @@
 #include "TurretAnimInstance.h"
 #include "LestaStart/Game/Common/HealthComponent.h"
 #include "LestaStart/Game/Weapon/LaserWeaponProjectileFactory.h"
+#include "LestaStart/UI/HealthbarWidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
 const FName MuzzleSocketName = FName("MuzzleSocket");
@@ -34,6 +35,10 @@ ATurret::ATurret() : RotationSpeed(10.0f), DamagePerSecond(10.0f), IsShooting(fa
 	TurretMeshComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	TurretMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	TurretMeshComponent->SetAnimInstanceClass(UTurretAnimInstance::StaticClass());
+
+	TurretHealthbarWidgetComponent =
+		CreateDefaultSubobject<UHealthbarWidgetComponent>("HealthbarWidgetComponent");
+	TurretHealthbarWidgetComponent->SetupAttachment(TurretMeshComponent);
 }
 
 void ATurret::BeginPlay()
@@ -83,6 +88,9 @@ void ATurret::RemoveBindings()
 
 void ATurret::OnHealthChanged(float CurrentHealth)
 {
+	if (IsValid(TurretHealthbarWidgetComponent) && IsValid(HealthComponent))
+		TurretHealthbarWidgetComponent->SetHealthPercent(CurrentHealth / HealthComponent->GetMaxHealth());
+	
 	if (CurrentHealth <= 0.0f)
 	{
 		OnDead();

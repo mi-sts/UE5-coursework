@@ -77,6 +77,8 @@ protected:
 	virtual void BeginPlay() override;
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnInitialWeapons();
+	UFUNCTION(Server, Reliable)
+	void ServerRegisterPlayer();
 	virtual void Destroyed() override;
 	
 	virtual void OnMoveInput(const FInputActionInstance& InputActionInstance);
@@ -95,7 +97,9 @@ protected:
 
 	virtual void OnHealthChanged(float CurrentHealth);
 	virtual void OnDie() override;
-
+	UFUNCTION(Server, Reliable)
+	void ServerHandleDeath();
+	
 	UFUNCTION(Client, Reliable)
 	void ClientDead();
 

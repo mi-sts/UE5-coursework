@@ -4,7 +4,9 @@
 #include "SphereWeaponProjectileFactory.h"
 
 #include "Weapon.h"
+#include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
+#include "LestaStart/Utils/DamageSystemUtils.h"
 
 
 USphereWeaponProjectileFactory::USphereWeaponProjectileFactory()
@@ -30,7 +32,7 @@ void USphereWeaponProjectileFactory::CreateProjectileView(float Damage)
 		GetWorld(),
 		CameraLocation,
 		DamageRadius, 
-		100,
+		30,
 		FColor::Red,
 		false,
 		3.0f
@@ -39,21 +41,38 @@ void USphereWeaponProjectileFactory::CreateProjectileView(float Damage)
 
 void USphereWeaponProjectileFactory::OnServerProjectileCreation(float Damage)
 {
+	ServerApplyRadialDamage(Damage);
+}
+
+void USphereWeaponProjectileFactory::ServerApplyRadialDamage_Implementation(float Damage)
+{
 	FVector CameraLocation = PlayerCameraTransformGetter().GetLocation();
 	AActor* WeaponOwner = GetWeaponOwner();
-
-	UGameplayStatics::ApplyRadialDamage(
+	
+	TArray<AActor*> OverlappedActors;
+	if (UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(),
-		Damage,
 		CameraLocation,
 		DamageRadius,
-		nullptr,
+		{},
+		AActor::StaticClass(),
 		{ WeaponOwner },
-		WeaponOwner,
-		nullptr,
-		true,
-		ECC_Visibility
-	);
+		OverlappedActors
+	))
+	{
+		for (AActor* OverlappedActor : OverlappedActors)
+		{
+			if (!IsValid(OverlappedActor))
+				continue;
+			
+			if (OverlappedActor->GetClass() == WeaponOwner->GetClass())
+				continue;
+
+			FDamageEvent DamageEvent;
+			OverlappedActor->TakeDamage(Damage, DamageEvent, nullptr, WeaponOwner);
+			DamageSystemUtils::CheckActorDeath(OverlappedActor);
+		}
+	}
 }
 
 void USphereWeaponProjectileFactory::TickComponent(float DeltaTime, ELevelTick TickType,

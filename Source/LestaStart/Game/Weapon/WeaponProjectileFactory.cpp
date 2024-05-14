@@ -31,6 +31,7 @@ void UWeaponProjectileFactory::ServerCreateProjectile_Implementation(float Damag
 	}
 
 	OnServerProjectileCreation(Damage);
+	CreateProjectileView(Damage);
 	MulticastCreateProjectileView(Damage);
 }
 

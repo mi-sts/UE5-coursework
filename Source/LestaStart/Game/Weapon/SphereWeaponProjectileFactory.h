@@ -21,6 +21,9 @@ protected:
 	virtual void CreateProjectileView(float Damage) override;
 	virtual void OnServerProjectileCreation(float Damage) override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerApplyRadialDamage(float Damage);
+
 	float DamageRadius;
 
 public:
