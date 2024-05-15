@@ -8,7 +8,7 @@
 #include "LestaStart/UI/HealthbarWidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 
-const FName MuzzleSocketName = FName("MuzzleSocket");
+const FName TurretMuzzleSocketName = FName("MuzzleSocket");
 const FName TurretRotationBoneName = FName("GunMount");
 const FString TurretMeshPath = FString("/Game/Turret/SKM_Turret.SKM_Turret");
 const FName TurretAnimInstanceRotationVariableName = FName("TurretRotation");
@@ -136,7 +136,7 @@ void ATurret::AssignProjectileFactory(UWeaponProjectileFactory* ProjectileFactor
 	ProjectileFactory->SetIsReplicated(true);
 	AssignedProjectileFactory = ProjectileFactory;
 	auto GetMuzzleTransform = [&](){ 
-		FTransform MuzzleTransform = TurretMeshComponent->GetSocketTransform(MuzzleSocketName);
+		FTransform MuzzleTransform = TurretMeshComponent->GetSocketTransform(TurretMuzzleSocketName);
 		FRotator CorrectionRotator = FRotator(0.0f, 90.0f, 0.0f);
 		MuzzleTransform.SetRotation((MuzzleTransform.Rotator() + CorrectionRotator).Quaternion());
 

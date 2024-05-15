@@ -5,7 +5,7 @@
 #include "LestaStart/Core/LestaCharacter/LestaCharacter.h"
 #include "Net/UnrealNetwork.h"
 
-const FName MuzzleSocketName = FName("MuzzleSocket");
+const FName WeaponMuzzleSocketName = FName("MuzzleSocket");
 
 AWeapon::AWeapon(): IsTriggered(false)
 {
@@ -41,7 +41,7 @@ void AWeapon::Activate(UCameraComponent* CameraComponent)
 	PlayerCameraComponent = CameraComponent;
 	if (IsValid(WeaponMeshComponent) && IsValid(WeaponMeshComponent->GetSkeletalMeshAsset()))
 	{
-		MuzzleSocket = WeaponMeshComponent->GetSkeletalMeshAsset()->FindSocket(MuzzleSocketName);
+		MuzzleSocket = WeaponMeshComponent->GetSkeletalMeshAsset()->FindSocket(WeaponMuzzleSocketName);
 	}
 	
 	ProjectileFactory->Initialize(
@@ -81,7 +81,7 @@ void AWeapon::InitializeMesh(const FString& MeshReferenceName)
 		WeaponMeshComponent->SetRelativeLocation(FVector(0.0f));
 		WeaponMeshComponent->SetWorldScale3D(FVector(1.0f));
 		
-		MuzzleSocket = WeaponMeshFinder.Object->FindSocket(MuzzleSocketName);
+		MuzzleSocket = WeaponMeshFinder.Object->FindSocket(WeaponMuzzleSocketName);
 	}
 }
 
