@@ -178,7 +178,14 @@ void ALestaCharacter::OnShootInput(const FInputActionInstance& InputActionInstan
 void ALestaCharacter::OnNextWeaponInput(const FInputActionInstance& InputActionInstance)
 {
 	const float Input = InputActionInstance.GetValue().Get<float>();
-	UE_LOG(LogInput, Warning, TEXT("%f"), Input);
+	int WeaponIndex = FMath::Abs((int)Input) % 2;
+	if (WeaponIndex == 0)
+		return;
+
+	if (AttachedWeapon == FirstWeapon)
+		ServerAttachWeapon(SecondWeapon);
+	else
+		ServerAttachWeapon(FirstWeapon);
 }
 
 void ALestaCharacter::MulticastUpdateCharacterPitch_Implementation(float ControlPitch, float CameraPitch)

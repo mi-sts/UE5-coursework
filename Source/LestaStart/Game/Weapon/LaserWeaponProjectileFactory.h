@@ -18,7 +18,7 @@ public:
 	virtual void CreateProjectileView(float Damage) override;
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LaserHitDistance = 1000.0f;
 
 	virtual void OnServerProjectileCreation(float Damage) override;

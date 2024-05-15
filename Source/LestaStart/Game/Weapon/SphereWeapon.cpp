@@ -9,10 +9,11 @@ const FString SphereWeaponMeshPath = FString("/Game/Weapons/Pistol/Mesh/SK_Pisto
 ASphereWeapon::ASphereWeapon():
 	MaxChargeValue(50.0f),
 	ChargePerSecondIncrease(10.0f),
-	DamageRadius(1500.0f),
+	DamageRadius(1000.0f),
 	CurrentChargeValue(0.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
 	
 	USphereWeaponProjectileFactory* SphereProjectileFactory =
 		CreateDefaultSubobject<USphereWeaponProjectileFactory>(TEXT("ProjectileFactory"));
@@ -32,7 +33,9 @@ void ASphereWeapon::PullTrigger()
 void ASphereWeapon::ReleaseTrigger()
 {
 	Super::ReleaseTrigger();
-	TakeShot(CurrentChargeValue);
+	if (HasAuthority())
+		TakeShot(CurrentChargeValue);
+	ProjectileFactory->CreateProjectileView(CurrentChargeValue);
 	CurrentChargeValue = 0.0f;
 }
 
